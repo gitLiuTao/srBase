@@ -16,6 +16,8 @@ import java.util.Map;
 
 public class Data extends HashMap<String, Object> implements IData {
 
+	
+	
 	/**
 	 * 编号
 	 */
