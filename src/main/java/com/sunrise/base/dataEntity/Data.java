@@ -21,7 +21,7 @@ public class Data extends HashMap<String, Object> implements IData {
 	 */
 	private static final long serialVersionUID = -2658350970937733375L;
 	public Data(){
-		System.out.println("分支1添加内容*******************");
+		System.out.println("master添加内容*******************");
 	}
 	public Data(Map<String,Object> map){
 		this.putAll(map);
