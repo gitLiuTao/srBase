@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.SuggestMapper">
+	<select id="selectSubChannelByKeyWord" resultType="java.lang.String" parameterType="java.util.HashMap">
+	   <![CDATA[
+		select distinct	SUB_CHANNEL_NAME from 	DIM_CHANNEL_PORTAL_MAP
+		where
+		SUB_CHANNEL_NAME like '%${keyWord}%' and rownum<50
+		]]>
+	</select>
+	<select id="selectCpByKeyWord" resultType="java.lang.String" parameterType="java.util.HashMap">
+		   <![CDATA[
+		select distinct CP_NAME from DIM_CP_INFO_NEW_V1 where
+		CP_NAME like
+		'%${keyWord}%' and rownum<50
+				]]>
+	</select>
+	<select id="selectPortalByKeyWord" resultType="java.lang.String" parameterType="java.util.HashMap">
+		   <![CDATA[
+		select distinct PORTAL_NAME_KP from	DIM_CHANNEL_PORTAL_MAP 
+		where
+		PORTAL_NAME_KP
+		like
+		'%${keyWord}%' and rownum<50
+			]]>
+	</select>
+</mapper>

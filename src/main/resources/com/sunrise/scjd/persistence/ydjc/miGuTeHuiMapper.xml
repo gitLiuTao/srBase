@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.MiGuTeHuiMapper">
+	<!-- 咪咕特会业务总览！ -->
+	<select id="queryMiguthAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="java.util.HashMap">
+		select   a.member_cnt,
+         		 case 
+         			 when <![CDATA[a.member_cnt<>0 and nvl(b.member_cnt,0)]]>  = 0 then 100
+         			 when <![CDATA[a.member_cnt=0 and nvl(b.member_cnt,0)]]>  = 0 then 0
+                      else round((a.member_cnt-b.member_cnt)*100 / b.member_cnt ,2) end   member_cnt_hb,
+                a.member_total_cnt,
+                case 
+                     when <![CDATA[a.member_total_cnt<>0 and nvl(b.member_total_cnt,0)]]>  = 0 then 100
+         			 when <![CDATA[a.member_total_cnt=0 and nvl(b.member_total_cnt,0)]]>  = 0 then 0
+                     else round((a.member_total_cnt-b.member_total_cnt)*100 / b.member_total_cnt,2)  end   member_total_cnt_hb
+        from    
+                (<choose>
+                	<when test="provinceCode==99">
+                	select sum(member_cnt) member_cnt ,
+                       sum(member_total_cnt) member_total_cnt
+                       
+                		from prt_rep_member_sum_dm 
+                		where  report_date=#{dateId,jdbcType=INTEGER}
+                		and user_type_id=4
+                	</when>
+                	<otherwise>
+                		select sum(member_cnt) member_cnt ,
+                       sum(member_total_cnt) member_total_cnt,
+                       PROVINCE_CODE
+                		from prt_rep_member_sum_dm 
+                		where  report_date=#{dateId,jdbcType=INTEGER}
+                		and user_type_id=4
+						and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+                		group by PROVINCE_CODE
+                	</otherwise>
+                </choose>
+				
+				) a   left join 
+
+     		   (
+				<choose>
+                	<when test="provinceCode==99">
+                	select sum(member_cnt) member_cnt ,
+     		           sum(member_total_cnt) member_total_cnt
+     		           
+						from prt_rep_member_sum_dm   
+                		where  report_date=#{preDateId,jdbcType=INTEGER}
+                		and user_type_id=4
+                	</when>
+                	<otherwise>
+                	select sum(member_cnt) member_cnt ,
+     		           sum(member_total_cnt) member_total_cnt,
+     		           PROVINCE_CODE
+						from prt_rep_member_sum_dm   
+                		where  report_date=#{preDateId,jdbcType=INTEGER}
+                		and user_type_id=4
+						and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+                		group by PROVINCE_CODE
+                	</otherwise>
+                </choose>
+				) b 
+		
+		<choose>
+			<when test="provinceCode==99">
+			on 1=1
+			</when>
+			<otherwise>
+			on a.PROVINCE_CODE=b.PROVINCE_CODE
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+</mapper>

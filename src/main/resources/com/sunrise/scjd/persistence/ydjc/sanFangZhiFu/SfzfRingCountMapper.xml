@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.sanFangZhiFu.SfzfRingCountMapper">
+ 	
+	<!-- 三方支付  振铃按次 -->
+	<sql id="Base_Column_List">
+		USERNUM AS ALL_USR,
+		USERNUM_HB AS ALL_USR_HB,
+		DOWNCNT AS ALL_DOWN_CNT,
+		DOWNCNT_HB AS ALL_DOWN_CNT_HB,
+		PRICE AS ALL_PRICE,
+		PRICE_HB AS ALL_PRICE_HB,
+	</sql>
+	<select id="queryTimeAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+			<if test="dateType  == 'day'">
+				DATE_ID as DATE_ID
+				from PRT_YDJC_ZRING3PAY_DM
+				where DATE_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				MONTH_ID as DATE_ID
+				from PRT_YDJC_ZRING3PAY_MM
+				where MONTH_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+		order by DATE_ID DESC
+	</select>
+</mapper>

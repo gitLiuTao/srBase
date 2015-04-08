@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.ProductAnalysisMapper">
+	<select id="selectProduct" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select date_id,BUSI_NAME,THHY_US from  rpt_qkth_hy_jc_busi_d_v
+		<where>
+			date_id=#{dateId}
+			<if test="provinceCode!=99"></if>
+			and AREA_CODE=#{provinceCode}
+		</where>
+		order by THHY_US desc
+	</select>
+	
+	<sql id="Base_Column_List">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR, ALL_USR_HB as USR_HB,
+				ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+				ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<!-- 收费 -->
+			<when test="jfFlag!=null and jfFlag==2"><![CDATA[
+				,SF_DOWN_USR, SF_DOWN_USR_HB,
+				SF_USED_USR ,SF_USED_USR_HB,
+				SF_DOWN_CNT,SF_DOWN_CNT_HB,
+				SF_ALL_PRICE as PRICE,SF_ALL_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<!-- 免费 -->
+			<when test="jfFlag!=null and jfFlag==1">
+            <![CDATA[
+				,MF_DOWN_USR, MF_DOWN_USR_HB,
+				MF_USED_USR ,MF_USED_USR_HB,
+				MF_DOWN_CNT,MF_DOWN_CNT_HB,
+				MF_ALL_PRICE as PRICE,MF_ALL_PRICE_HB as PRICE_HB	
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<!-- 渠道专属包月展示字段 -->
+	<sql id="Base_Column_List_channelByMonth">
+		case  DATA_FLAG 
+		WHEN 'zr' THEN '振铃'
+		WHEN 'qq' THEN '全曲'
+		END as DATA_FLAG
+		<![CDATA[
+			,DOWN_USR, 
+			DOWN_USR_HB,
+			USED_USR ,
+			USED_USR_HB,
+			DOWN_CNT,
+			DOWN_CNT_HB,
+			ALL_PRICE as PRICE,
+			ALL_PRICE_HB as PRICE_HB
+		]]>
+	</sql>
+	<sql id="OrderBy_Clause">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWN_CNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<sql id="Where_Clause">
+		<if test="_parameter!=null">
+			<where>
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="dateId!=null and dateId!=''">
+					and DATE_ID=#{dateId,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+			</where>
+		</if>
+	</sql>
+	<!--彩铃-->
+	<sql id="Where_ClauseRing">
+		<if test="_parameter!=null">
+			<where>
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+			</where>
+		</if>
+	</sql>
+	<!-- 渠道专属包月条件 -->
+	<sql id="Where_Clause_channelByMonth">
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="srcMusicId!=null and srcMusicId!=''">
+					and SRC_MUSIC_ID like '%${srcMusicId}%'
+				</if>
+				<if test="srcMusicId ==null or srcMusicId ==''">
+					and SRC_MUSIC_ID = -1
+				</if>
+				<if test="srcMusicName!=null and srcMusicName!=''">
+					and SRC_MUSIC_NAME like '%${srcMusicName}%'
+				</if>
+	</sql>
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		from RPT_YDJC_SONG_DM
+		<include refid="Where_Clause" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	<!-- 彩铃sql -->
+		<select id="selectBySelective_ring" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+			<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RING_DM
+			where DATE_ID = #{preDateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RING_MM
+			where MONTH_ID = #{preDateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ClauseRing" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	<!-- 渠道专属包月sql -->
+	<select id="selectBySelective_channelByMonth" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List_channelByMonth" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_QDZS_DM
+			WHERE  DATE_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_QDZS_MM
+			WHERE  MONTH_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<include refid="Where_Clause_channelByMonth" />
+		<!-- 按总下载量降序排 -->
+		order by DOWN_CNT desc
+	</select>
+</mapper>

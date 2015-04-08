@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.CpRingMapper">
+
+	<select id="queryMonthData" parameterType="string" resultType="map">
+		select * 
+		from rpt_ydjc_ring_rq_mm  t
+		where flag = 1
+		and month_id = #{dateId} 
+	</select>
+	<select id="queryDayData" parameterType="string" resultType="map">
+		select * 
+		from rpt_ydjc_ring_rq_mm  t
+		where  flag = 2
+		and month_id = #{dateId} 
+		order by date_id desc
+	</select>
+	<select id="queryTabledata1" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_rq_mm  t
+		where   flag = 1 
+		and month_id between  #{preDateId} and #{dateId} 
+		order by month_id desc
+	</select>
+	<select id="queryTabledata2" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_sjtx_mm t 
+		where month_id = #{dateId}
+		order by DATE_CNT 
+	</select>
+	<select id="queryTabledata3" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_dy_mm t 
+		where month_id = #{dateId}
+		order by ALL_DOWN_CNT  desc
+	</select>
+	<select id="queryTabledata4" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_dszb_mm t 
+		where month_id = #{dateId}
+		order by ALL_DOWN_CNT   desc
+	</select>
+	<select id="queryTabledata5" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_fsmaxzb_mm t 
+		where month_id = #{dateId}
+		order by SF_MAX_PCT desc
+	</select>
+	<select id="queryTabledata6" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select MONTH_ID,
+				BUSI_TYPE,
+				 DECODE(BUSI_TYPE,1,'彩铃',2,'振铃',3,'歌曲下载',4,'在线听','其他') as BUSI_TYPE_NAME,
+				ALL_USR,
+				ALL_DOWN_CNT
+		from rpt_ydjc_ring_ywlx_mm t 
+		where month_id = #{dateId}
+		order by ALL_DOWN_CNT desc
+	
+	</select>
+	<select id="queryTabledata7" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_cpmaxzb_mm t 
+		where month_id = #{dateId}
+		order by CP_MAX_PCT desc
+	</select>
+	<select id="queryTabledata8" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_qd_mm t 
+		where month_id = #{dateId}
+		order by ALL_DOWN_CNT desc
+	</select>
+	<select id="queryTabledata9" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_qdzb_mm t 
+		where month_id = #{dateId}
+	    order by ALL_DOWN_CNT desc
+	</select>
+	<select id="queryTabledata10" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_qdmaxzb_mm t 
+		where month_id = #{dateId}
+	    order by CHANNEL_MAX_PCT desc
+	</select>
+	<select id="queryTabledata11" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_down_mm t 
+		where month_id = #{dateId}
+		order by DOWN_CNT   
+	</select>
+	<select id="queryTabledata12" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_cnt_mm t 
+		where month_id = #{dateId}
+		order by ADD_USER_PCT
+	</select>
+	<select id="queryTabledata13" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * 
+		from rpt_ydjc_ring_ywzb_mm t 
+		where month_id = #{dateId}
+	    order by ALL_DOWN_CNT desc
+	</select>
+	 
+</mapper>

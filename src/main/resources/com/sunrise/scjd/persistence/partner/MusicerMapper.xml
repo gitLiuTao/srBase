@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.partner.MusicerMapper">
+	<sql id="Index_Column_List">
+	   <![CDATA[
+			SRC_CP_ID as CP_ID,
+			CP_NAME as CP_NAME,
+		]]>
+		<trim suffix="" suffixOverrides=",">
+			<choose>
+				<when test="tableId==58 or tableId==50">
+					THHYXZ_USR,
+					THHY_CNT,
+					THHY_CNT_HB,
+					THHY_ZZL,
+					ZXTTH_CNT,
+					QQTH_CNT,
+					ZRTH_CNT,
+					CRTH_CNT,
+				</when>
+				<otherwise>
+					<choose>
+						<when test="jfFlag!=null and jfFlag==-1">
+							<![CDATA[
+								ALL_USR as USR, 
+								ALL_DOWN_CNT as DOWN_CNT,
+								ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+								ALL_DOWN_ZZL as DOWN_ZZL,
+							]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==1">
+							<![CDATA[
+								MF_USR as USR, 
+								MF_DOWN_CNT as DOWN_CNT,
+								MF_DOWN_CNT_HB as DOWN_CNT_HB,
+								MF_DOWN_ZZL as DOWN_ZZL,
+							]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==2">
+				            <![CDATA[
+								SF_USR as USR, 
+								SF_DOWN_CNT as DOWN_CNT,
+								SF_DOWN_CNT_HB as DOWN_CNT_HB,
+							    SF_DOWN_ZZL as DOWN_ZZL,
+							]]>
+						</when>
+					</choose>
+				</otherwise>
+			</choose>
+		</trim>
+	</sql>
+	<sql id="Index_Table_Cause">
+		<if test="dateType=='day'">
+			<choose>
+				<when test="tableId==48 or tableId==49">RPT_HZHB_ALL_MUSICAN_DM</when>
+				<when test="tableId==53">RPT_HZHB_RING_MUSICAN_DM</when>
+				<when test="tableId==54">RPT_HZHB_RINGBOX_MUSIC_DM</when>
+				<when test="tableId==55">RPT_HZHB_ZRING_MUSICAN_DM</when>
+				<when test="tableId==56">RPT_HZHB_SONG_MUSICAN_DM</when>
+				<when test="tableId==51">RPT_HZHB_SST_MUSICAN_DM</when>
+				<when test="tableId==52">RPT_HZHB_ZSBY_MUSICAN_DM</when>
+				<when test="tableId==58 or tableId==50">RPT_HZHB_THSY_MUSICAN_DM</when>
+			</choose>
+		</if>
+		<if test="dateType=='month'">
+			<choose>
+				<when test="tableId==48 or tableId==49">RPT_HZHB_ALL_MUSICAN_MM</when>
+				<when test="tableId==53">RPT_HZHB_RING_MUSICAN_MM</when>
+				<when test="tableId==54">RPT_HZHB_RINGBOX_MUSIC_MM</when>
+				<when test="tableId==55">RPT_HZHB_ZRING_MUSICAN_MM</when>
+				<when test="tableId==56">RPT_HZHB_SONG_MUSICAN_MM</when>
+				<when test="tableId==51">RPT_HZHB_SST_MUSICAN_MM</when>
+				<when test="tableId==52">RPT_HZHB_ZSBY_MUSICAN_MM</when>
+				<when test="tableId==58 or tableId==50">RPT_HZHB_THSY_MUSICAN_MM</when>
+			</choose>
+		</if>
+	</sql>
+	<sql id="Index_Where_Cause">
+		<where>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="dateId!=null and dateType=='day'">
+				and DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateId!=null and dateType=='month'">
+				and MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=VARCHAR}
+			</if>
+			<if test="cpName!=null and cpName!=''">
+				and CP_NAME like '%${cpName}%'
+			</if>
+			<if test="copyrightId!=null and copyrightId!=''">
+				and COPYRIGHT_ID like '%${copyrightId}%'
+			</if>
+			<if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+			</if>
+			<if test="dataFlag!=null and dataFlag!=''">
+				and DATA_FLAG=#{dataFlag,jdbcType=INTEGER}
+			</if>
+			<if test="tableId==56 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+			<choose>
+				<when test="tableId==58 or tableId==50">
+					<if test="tableCode==2">
+						<![CDATA[
+				    	and	THHY_CNT_HB>0
+						]]>
+					</if>
+					<if test="tableCode==3">
+				       <![CDATA[
+					    and	THHY_CNT_HB<0
+					   ]]>
+					</if>
+				</when>
+				<otherwise>
+					<if test="tableCode==2">
+						<choose>
+							<when test="jfFlag!=null and jfFlag==-1">
+							<![CDATA[
+								and ALL_DOWN_CNT_HB>0
+							]]>
+							</when>
+							<when test="jfFlag!=null and jfFlag==1">
+							<![CDATA[
+								and MF_DOWN_CNT_HB>0
+							]]>
+							</when>
+							<when test="jfFlag!=null and jfFlag==2">
+				            <![CDATA[
+								and SF_DOWN_CNT_HB>0
+							]]>
+							</when>
+						</choose>
+					</if>
+					<if test="tableCode==3">
+						<choose>
+							<when test="jfFlag!=null and jfFlag==-1">
+							<![CDATA[
+								and ALL_DOWN_CNT_HB<0
+							]]>
+							</when>
+							<when test="jfFlag!=null and jfFlag==1">
+							<![CDATA[
+								and MF_DOWN_CNT_HB<0
+							]]>
+							</when>
+							<when test="jfFlag!=null and jfFlag==2">
+				            <![CDATA[
+								and SF_DOWN_CNT_HB<0
+							]]>
+							</when>
+						</choose>
+					</if>
+				</otherwise>
+			</choose>
+		</where>
+	</sql>
+	<sql id="Index_Order_Cause">
+		order by
+		<choose>
+			<when test="tableId==58 or tableId==50">
+				THHY_CNT desc
+			</when>
+			<otherwise>
+				<if test="tableCode==1">
+					<choose>
+						<when test="jfFlag!=null and jfFlag==-1">
+						<![CDATA[
+							ALL_DOWN_CNT desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==1">
+						<![CDATA[
+							MF_DOWN_CNT desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==2">
+			            <![CDATA[
+							SF_DOWN_CNT desc
+						]]>
+						</when>
+					</choose>
+				</if>
+				<if test="tableCode==2">
+					<choose>
+						<when test="jfFlag!=null and jfFlag==-1">
+						<![CDATA[
+							ALL_DOWN_CNT_HB desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==1">
+						<![CDATA[
+							MF_DOWN_CNT_HB desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==2">
+			            <![CDATA[
+							SF_DOWN_CNT_HB desc
+						]]>
+						</when>
+					</choose>
+				</if>
+				<if test="tableCode==3">
+					<choose>
+						<when test="jfFlag!=null and jfFlag==-1">
+						<![CDATA[
+							ALL_DOWN_CNT_HB desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==1">
+						<![CDATA[
+							MF_DOWN_CNT_HB desc
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==2">
+			            <![CDATA[
+							SF_DOWN_CNT_HB desc
+						]]>
+						</when>
+					</choose>
+				</if>
+			</otherwise>
+		</choose>
+	</sql>
+	<select id="selectIndexAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<include refid="Index_Column_List" />
+		from
+		<include refid="Index_Table_Cause" />
+		<include refid="Index_Where_Cause" />
+		<include refid="Index_Order_Cause" />
+	</select>
+
+	<sql id="Drill_Table_Cause">
+		<if test="dateType=='day'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_MUSICAN_DM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_MUSIC_DM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_MUSICAN_DM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_MUSICAN_DM</when>
+				<when test="pageId==227">RPT_HZHB_SST_MUSICAN_DM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_MUSICAN_DM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_MUSICAN_DM</when>
+			</choose>
+		</if>
+		<if test="dateType=='month'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_MUSICAN_MM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_MUSIC_MM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_MUSICAN_MM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_MUSICAN_MM</when>
+				<when test="pageId==227">RPT_HZHB_SST_MUSICAN_MM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_MUSICAN_MM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_MUSICAN_MM</when>
+			</choose>
+		</if>
+	</sql>
+	<sql id="Drill_Where_Cause">
+		<where>
+			<choose>
+				<when test="preDateId!=null and preDateId!=''">
+					and
+					<if test="dateType=='day'">DATE_ID</if>
+					<if test="dateType=='month'">MONTH_ID</if>
+					between #{preDateId,jdbcType=INTEGER} and
+					#{dateId,jdbcType=INTEGER}
+				</when>
+				<otherwise>
+					and
+					<if test="dateType=='day'">DATE_ID</if>
+					<if test="dateType=='month'">MONTH_ID</if>
+					=#{dateId,jdbcType=INTEGER}
+				</otherwise>
+			</choose>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="type!='area' and type!='superArea' and provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="type=='area' and provinceCode!=null and provinceCode!=''">
+				and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="type=='superArea' and provinceCode!=null and provinceCode!=''">
+				and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=INTEGER}
+			</if>
+			<if test="cpName!=null and cpName!=''">
+				and CP_NAME like '%${cpName}%'
+			</if>
+			<if test="copyrightId!=null and copyrightId!=''">
+				and COPYRIGHT_ID like '%${copyrightId}%'
+			</if>
+			<if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+			</if>
+			<if test="srcChannelId!=null and srcChannelId!=''">
+				and SRC_CHANNEL_ID like '%${srcChannelId}%'
+			</if>
+			<if test="subChannelName!=null and subChannelName!=''">
+				and SUB_CHANNEL_NAME like '%${subChannelName}%'
+			</if>
+			<if test="pageId==225 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+		</where>
+	</sql>
+	<sql id="Drill_OrderBy_Clause">
+		order by
+		<choose>
+			<when test="pageId==229">
+				THHY_CNT
+			</when>
+			<otherwise>
+				<choose>
+					<when test="jfFlag!=null and jfFlag==-1">
+					<![CDATA[
+						ALL_DOWN_CNT
+					]]>
+					</when>
+					<when test="jfFlag!=null and jfFlag==1">
+				    <![CDATA[
+						MF_DOWN_CNT
+					]]>
+					</when>
+					<when test="jfFlag!=null and jfFlag==2">
+		            <![CDATA[
+						SF_DOWN_CNT
+					]]>
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+		desc
+	</sql>
+	<sql id="Time_Analysis_SQL">
+		select
+		<trim suffix="" suffixOverrides=",">
+			PROVINCE_NAME,
+			<choose>
+				<when test="pageId==229">
+				  <![CDATA[
+				    THHYXZ_USR as USR,
+				    THHYXZ_ZZL as USR_ZZL, 
+				    THHYXZ_USR_HB as USR_HB,
+					THHY_CNT as DOWN_CNT,
+					THHY_ZZL as DOWN_CNT_ZZL,
+					THHY_CNT_HB as DOWN_CNT_HB,
+				  ]]>
+				</when>
+				<otherwise>
+					<choose>
+						<when test="jfFlag!=null and jfFlag==-1">
+						<![CDATA[
+							ALL_USR as USR, ALL_USR_HB as USR_HB,
+							ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+							ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB,
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==1">
+						<![CDATA[
+							MF_USR as USR, MF_USR_HB as USR_HB,
+							MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+							MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB,
+						]]>
+						</when>
+						<when test="jfFlag!=null and jfFlag==2">
+			            <![CDATA[
+							SF_USR as USR, SF_USR_HB as USR_HB,
+							SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+							SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB,
+						]]>
+						</when>
+					</choose>
+				</otherwise>
+			</choose>
+
+			<if test="dateType=='day'">DATE_ID</if>
+			<if test="dateType=='month'">MONTH_ID</if>
+			as DATE_ID,
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		order by DATE_ID desc
+	</sql>
+	<select id="queryTimeAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		<include refid="Time_Analysis_SQL" />
+	</select>
+	<select id="selectDrillTime" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		<include refid="Time_Analysis_SQL" />
+	</select>
+	<select id="selectDrillArea" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<trim suffix="" suffixOverrides=",">
+			PROVINCE_NAME,
+			<choose>
+				<when test="jfFlag!=null and jfFlag==-1">
+				<![CDATA[
+					ALL_USR as USR, ALL_USR_HB as USR_HB,
+					ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+					ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB,
+				]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==1">
+				<![CDATA[
+					MF_USR as USR, MF_USR_HB as USR_HB,
+					MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+					MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB,
+				]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==2">
+	            <![CDATA[
+					SF_USR as USR, SF_USR_HB as USR_HB,
+					SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+					SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB,
+				]]>
+				</when>
+			</choose>
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillPortal" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<trim suffix="" suffixOverrides=",">
+			PORTAL_NAME_KP,
+			<choose>
+				<when test="jfFlag!=null and jfFlag==-1">
+				<![CDATA[
+					ALL_USR as USR, 
+					ALL_USR_HB as USR_HB,
+					ALL_DOWN_CNT as DOWN_CNT,
+					ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+					ALL_PRICE as PRICE,
+					ALL_PRICE_HB as PRICE_HB,
+				]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==2">
+				<![CDATA[
+					SF_USR as USR, 
+					SF_USR_HB as USR_HB,
+					SF_DOWN_CNT as DOWN_CNT,
+					SF_DOWN_CNT_HB as DOWN_CNT_HB,
+					SF_PRICE as PRICE,
+					SF_PRICE_HB as PRICE_HB,
+			   ]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==1">
+	            <![CDATA[
+					MF_USR as USR, 
+					MF_USR_HB as USR_HB,
+					MF_DOWN_CNT as DOWN_CNT,
+					MF_DOWN_CNT_HB as DOWN_CNT_HB,
+					MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB,
+				]]>
+				</when>
+			</choose>
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillUserType" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<trim suffix="" suffixOverrides=",">
+			convert_type( 'USER_TYPE_ID',USER_TYPE_ID) as USER_TYPE,
+			<choose>
+				<when test="jfFlag!=null and jfFlag==-1">
+				  <![CDATA[
+					ALL_USR as USR, ALL_USR_HB as USR_HB,
+					ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+					ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB,
+				 ]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==1">
+				  <![CDATA[
+					MF_USR as USR, MF_USR_HB as USR_HB,
+					MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+					MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB,
+				  ]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==2">
+		          <![CDATA[
+					SF_USR as USR, SF_USR_HB as USR_HB,
+					SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+					SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB,
+				   ]]>
+				</when>
+			</choose>
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillSubChannel" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<trim suffix="" suffixOverrides=",">
+			SRC_CHANNEL_ID,SUB_CHANNEL_NAME,channel_co_name as SUB_CHANNEL_CO_NAME,
+			<choose>
+				<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_USR as USR, ALL_USR_HB as USR_HB,
+				ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+				ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB,
+			]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+			    MF_USR as USR, MF_USR_HB as USR_HB,
+				MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+				MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB,
+			]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_USR as USR, SF_USR_HB as USR_HB,
+				SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+				SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB,
+			]]>
+				</when>
+			</choose>
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillSong" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		<trim suffix="" suffixOverrides=",">
+			COPYRIGHT_ID,MUSIC_NAME,SRC_SINGER_NAME as SINGER_NAME,
+			<choose>
+				<when test="jfFlag!=null and jfFlag==-1">
+					<![CDATA[
+						ALL_USR as USR,
+						ALL_PRICE as PRICE,
+						ALL_DOWN_CNT as DOWN,
+					]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==1">
+					<![CDATA[
+						SF_USR as USR,
+						SF_PRICE as PRICE,
+						SF_DOWN_CNT as DOWN,
+					]]>
+				</when>
+				<when test="jfFlag!=null and jfFlag==2">
+		            <![CDATA[
+						MF_USR as USR,
+						MF_PRICE as PRICE,
+						MF_DOWN_CNT as DOWN,
+					]]>
+				</when>
+			</choose>
+		</trim>
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillDownload" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select down_cnt DOWNLOADCNT, 	<!-- 费用数 -->
+		usr USERCNT,					<!-- 用户数 -->
+		down_cnt * usr DOWNLOADAMOUNT	<!-- 下载量 -->
+		from
+		<if test="dateType=='day'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_DOWN_MUSICAN_DM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_DOWN_MUSIC_DM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_DOWN_MUSICAN_DM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_DOWN_MUSICAN_DM</when>
+				<when test="pageId==227">RPT_HZHB_SST_DOWN_MUSICAN_DM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_DOWN_MUSICAN_DM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_DOWN_MUSICAN_DM</when>
+			</choose>
+		</if>
+		<if test="dateType=='month'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_DOWN_MUSICAN_MM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_DOWN_MUSIC_MM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_DOWN_MUSICAN_MM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_DOWN_MUSICAN_MM</when>
+				<when test="pageId==227">RPT_HZHB_SST_DOWN_MUSICAN_MM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_DOWN_MUSICAN_MM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_DOWN_MUSICAN_MM</when>
+			</choose>
+		</if>
+		<where>
+			and
+			<if test="dateType=='day'">DATE_ID</if>
+			<if test="dateType=='month'">MONTH_ID</if>
+			=#{dateId,jdbcType=INTEGER}
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="jfFlag!=null and jfFlag!=''">
+				and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=INTEGER}
+			</if>
+			<if test="pageId==225 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+		</where>
+		order by (down_cnt * usr) desc
+	</select>
+	<select id="selectDrillCost" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		PRICE as PRICE,
+		USR AS USR,
+		PRICE*USR AS TOTAL
+		from
+		<if test="dateType=='day'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_FEE_MUSICAN_DM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_FEE_MUSIC_DM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_FEE_MUSICAN_DM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_FEE_MUSICAN_DM</when>
+				<when test="pageId==227">RPT_HZHB_SST_FEE_MUSICAN_DM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_FEE_MUSICAN_DM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_FEE_MUSICAN_DM</when>
+			</choose>
+		</if>
+		<if test="dateType=='month'">
+			<choose>
+				<when test="pageId==222">RPT_HZHB_RING_FEE_MUSICAN_MM</when>
+				<when test="pageId==223">RPT_HZHB_RINGBOX_FEE_MUSIC_MM</when>
+				<when test="pageId==224">RPT_HZHB_ZRING_FEE_MUSICAN_MM</when>
+				<when test="pageId==225">RPT_HZHB_SONG_FEE_MUSICAN_MM</when>
+				<when test="pageId==227">RPT_HZHB_SST_FEE_MUSICAN_MM</when>
+				<when test="pageId==228">RPT_HZHB_ZSBY_FEE_MUSICAN_MM</when>
+				<when test="pageId==229">RPT_HZHB_THSY_FEE_MUSICAN_MM</when>
+			</choose>
+		</if>
+		<where>
+			and
+			<if test="dateType=='day'">DATE_ID</if>
+			<if test="dateType=='month'">MONTH_ID</if>
+			=#{dateId,jdbcType=INTEGER}
+			<choose>
+				<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+				</when>
+				<otherwise>
+					and JF_FLAG = -99
+				</otherwise>
+			</choose>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=INTEGER}
+			</if>
+			<if test="cpName!=null and cpName!=''">
+				and CP_NAME like '%${cpName}%'
+			</if>
+			<if test="pageId==225 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+		</where>
+		order by TOTAL desc
+	</select>
+	<select id="selectDrillSuperTime" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		PROVINCE_NAME,
+		THHYXZ_USR,
+		THHY_CNT,
+		THHY_CNT_HB,
+		THHY_ZZL,
+		ZXTTH_CNT,
+		QQTH_CNT,
+		ZRTH_CNT,
+		CRTH_CNT,
+		<if test="dateType=='day'">DATE_ID</if>
+		<if test="dateType=='month'">MONTH_ID</if>
+		as DATE_ID
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		order by DATE_ID desc
+	</select>
+	<select id="selectDrillSuperArea" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		PROVINCE_NAME,
+		THHYXZ_USR,
+		THHY_CNT,
+		THHY_CNT_HB,
+		ZXTTH_CNT,
+		QQTH_CNT,
+		ZRTH_CNT,
+		CRTH_CNT,
+		<if test="dateType=='day'">DATE_ID</if>
+		<if test="dateType=='month'">MONTH_ID</if>
+		as DATE_ID
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillSuperSubChannel" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		SRC_CHANNEL_ID,SUB_CHANNEL_NAME,channel_co_name as SUB_CHANNEL_CO_NAME,
+		THHYXZ_USR,
+		THHY_CNT,
+		THHY_CNT_HB,
+		ZXTTH_CNT,
+		QQTH_CNT,
+		ZRTH_CNT,
+		CRTH_CNT
+		from
+		<include refid="Drill_Table_Cause" />
+		<include refid="Drill_Where_Cause" />
+		<include refid="Drill_OrderBy_Clause" />
+	</select>
+	<select id="selectDrillSuperDownload" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		THHY_CNT * THHYXZ_USR as DOWNLOADCNT,
+		THHYXZ_USR,
+		THHY_CNT,
+		ZXTTH_CNT,
+		QQTH_CNT,
+		ZRTH_CNT,
+		CRTH_CNT
+		from
+		<if test="dateType=='day'">
+			RPT_HZHB_THSY_DOWN_MUSICAN_DM
+		</if>
+		<if test="dateType=='month'">
+			RPT_HZHB_THSY_DOWN_MUSICAN_MM
+		</if>
+		<where>
+			and
+			<if test="dateType=='day'">DATE_ID</if>
+			<if test="dateType=='month'">MONTH_ID</if>
+			=#{dateId,jdbcType=INTEGER}
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=INTEGER}
+			</if>
+			<if test="cpName!=null and cpName!=''">
+				and CP_NAME like '%${cpName}%'
+			</if>
+			<if test="pageId==225 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+		</where>
+		order by DOWNLOADCNT desc
+	</select>
+	<sql id="Super_Active_Cause">
+		<if test="dateType=='day'">
+			RPT_HZHB_THSY_MUSICAN_DM
+		</if>
+		<if test="dateType=='month'">
+			RPT_HZHB_THSY_MUSICAN_MM
+		</if>
+		<where>
+			and
+			<if test="dateType=='day'">DATE_ID</if>
+			<if test="dateType=='month'">MONTH_ID</if>
+			=#{dateId,jdbcType=INTEGER}
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcCpId!=null and srcCpId!=''">
+				and SRC_CP_ID=#{srcCpId,jdbcType=INTEGER}
+			</if>
+			<if test="cpName!=null and cpName!=''">
+				and CP_NAME like '%${cpName}%'
+			</if>
+			<if test="pageId==225 and productId!=null and productId!=''">
+				and PRODUCT_ID = #{productId,jdbcType=INTEGER}
+			</if>
+			and rownum=1
+		</where>
+	</sql>
+	<select id="selectDrillSuperActive" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select * from(
+		select '彩铃' as BUSI,CRTH_USR as USR,CRTH_CNT as CNT from
+		<include refid="Super_Active_Cause" />
+		union all
+		select '振铃' as
+		BUSI,ZRTH_USR as USR,ZRTH_CNT as CNT from
+		<include refid="Super_Active_Cause" />
+		union all
+		select '歌曲下载' as
+		BUSI,QQTH_USR as USR,QQTH_CNT as CNT from
+		<include refid="Super_Active_Cause" />
+		union all
+		select '在线听' as
+		BUSI,ZXTTH_USR as USR,ZXTTH_CNT as CNT from
+		<include refid="Super_Active_Cause" />
+		) t ORDER BY CNT
+	</select>
+</mapper>

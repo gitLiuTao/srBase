@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.system.persistence.AuthGroupRoleMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.system.domain.AuthGroupRole">
+		<result column="GROUP_ID" jdbcType="BIGINT" property="groupId" />
+		<result column="ROLE_ID" jdbcType="DECIMAL" property="roleId" />
+	</resultMap>
+	<insert id="insert" parameterType="com.sunrise.system.domain.AuthGroupRole">
+		insert into AUTH_GROUP_ROLE (GROUP_ID, ROLE_ID)
+		values (#{groupId,jdbcType=BIGINT}, #{roleId,jdbcType=DECIMAL})
+	</insert>
+	<insert id="insertSelective" parameterType="com.sunrise.system.domain.AuthGroupRole">
+		insert into AUTH_GROUP_ROLE
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				GROUP_ID,
+			</if>
+			<if test="roleId != null">
+				ROLE_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="roleId != null">
+				#{roleId,jdbcType=DECIMAL},
+			</if>
+		</trim>
+	</insert>
+</mapper>

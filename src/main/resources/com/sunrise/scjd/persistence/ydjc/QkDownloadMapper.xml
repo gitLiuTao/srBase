@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.QkDownloadMapper">
+ 
+	
+	<select id="queryTimeAnalysis" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+				THHY_US,THHYXZ_US,THHY_AC,DATE_ID as DATE_ID
+				from rpt_qkth_hy_jc_busi_d
+				where flag=#{flag,jdbcType=INTEGER}
+			
+			<if test="flag==1">
+				and DATE_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>	
+			<if test="flag==0">
+				and DATE_ID= #{dateId,jdbcType=INTEGER}
+			</if>		
+				and busi_flag=#{productId,jdbcType=INTEGER}
+
+			<if test="provinceCode!=null and provinceCode!=''">
+				and area_code=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by DATE_ID desc
+	</select>
+	
+	<select id="queryZongLAnalysis" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		 a.THHY_US,a.THHYXZ_US,a.THHY_AC,a.DATE_ID as DATE_ID,
+		case 
+            when <![CDATA[a.thhy_us<>0 and nvl(b.thhy_us,0)]]>  = 0 then 100
+         	when <![CDATA[a.thhy_us=0 and nvl(b.thhy_us,0)]]>  = 0 then 0             
+        	else round((a.thhy_us-b.thhy_us)*100/b.thhy_us,2) end  ALL_USR_HB,
+        case 
+        	when <![CDATA[a.thhyxz_us<>0 and nvl(b.thhyxz_us,0)]]> =0 then 100
+         	when <![CDATA[a.thhyxz_us=0 and nvl(b.thhyxz_us,0)]]> =0 then 0
+       	 	else round((a.thhyxz_us-b.thhyxz_us)*100/b.thhyxz_us,2) end  ALL_DOWN_CNT_HB,
+        case 
+        	when <![CDATA[a.thhy_ac<>0 and nvl(b.thhy_ac,0)]]> =0 then 100
+       	 	when <![CDATA[a.thhy_ac=0 and nvl(b.thhy_ac,0)]]> =0 then 0
+        	else round((a.thhy_ac-b.thhy_ac)*100/b.thhy_ac,2) end  ALL_PRICE_HB  
+          FROM
+			(select  *    
+				from mon_dm.rpt_qkth_hy_jc_busi_d
+			   where flag=#{flag,jdbcType=INTEGER}
+               and busi_flag=#{productId,jdbcType=INTEGER}
+	           and area_code=#{provinceCode,jdbcType=INTEGER}
+               and DATE_ID=  #{dateId,jdbcType=INTEGER})  a
+         left join 
+            (select  *    
+				from mon_dm.rpt_qkth_hy_jc_busi_d
+				where flag=	#{flag,jdbcType=INTEGER}	
+        and busi_flag=#{productId,jdbcType=INTEGER}
+        and area_code=#{provinceCode,jdbcType=INTEGER}
+        and DATE_ID= #{preDateId,jdbcType=INTEGER})  b
+        on a.area_code=b.area_code  			
+		order by a.DATE_ID desc
+	</select>
+</mapper>

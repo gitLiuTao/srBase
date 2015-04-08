@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.ThhyAnalysisMapper">
+
+	<select id="querythAreaandtimeAnalysis" parameterType="com.sunrise.scjd.domain.DataParam"
+		resultType="java.util.HashMap">
+		select
+		DATE_ID as DATE_ID,THHY_US as THHY_US,
+		THHYXZ_US as
+		THHYXZ_US,THHY_AC as THHY_AC,
+		AREA_NAME as PROVINCE_NAME
+		from
+		RPT_QKTH_HY_JC_BUSI_D where
+		FLAG=#{flag,jdbcType=INTEGER}
+		and DATE_ID
+		between #{preDateId} and #{dateId}   
+		
+		and busi_flag=#{productId}
+		
+		
+		and area_code=#{provinceCode}
+		
+		order by DATE_ID desc
+		</select>
+		<select id="select_hb" parameterType="com.sunrise.scjd.domain.DataParam"
+		resultType="java.util.HashMap">
+select a.thhyxz_us as THHYXZ_US,
+       a.thhy_ac as THHY_AC,
+       a.thhy_us as THHY_US,
+       case
+         when <![CDATA[a.thhy_us<>0 and nvl(b.thhy_us,0)]]>  = 0 then 100
+         when <![CDATA[a.thhy_us=0 and nvl(b.thhy_us,0)]]>  = 0 then 0
+         else
+          round((a.thhy_us - b.thhy_us) * 100 / b.thhy_us, 2)
+       end THHY_US_HB,
+       case
+         when <![CDATA[a.thhyxz_us<>0 and nvl(b.thhyxz_us,0)]]> =0 then 100
+         when <![CDATA[a.thhyxz_us=0 and nvl(b.thhyxz_us,0)]]> =0 then 0
+         else
+          round((a.thhyxz_us - b.thhyxz_us) * 100 / b.thhyxz_us, 2)
+       end THHYXZ_US_HB,
+       case 
+       	 when <![CDATA[a.thhy_ac<>0 and nvl(b.thhy_ac,0)]]> =0 then 100
+       	 when <![CDATA[a.thhy_ac=0 and nvl(b.thhy_ac,0)]]> =0 then 0
+         else round((a.thhy_ac - b.thhy_ac) * 100 / b.thhy_ac, 2) end THHY_AC_HB
+      from 	(select  *    
+				from mon_dm.rpt_qkth_hy_jc_busi_d
+			   where flag=#{flag,jdbcType=INTEGER}
+               and busi_flag=#{productId,jdbcType=INTEGER}
+	           and area_code=#{provinceCode,jdbcType=INTEGER}
+               and DATE_ID=  #{dateId,jdbcType=INTEGER})  a
+         left join 
+            (select  *    
+				from mon_dm.rpt_qkth_hy_jc_busi_d
+		where flag=	#{flag,jdbcType=INTEGER}	
+        and busi_flag=#{productId,jdbcType=INTEGER}
+        and area_code=#{provinceCode,jdbcType=INTEGER}
+        and DATE_ID= #{preDateId,jdbcType=INTEGER})  b
+        on a.area_code=b.area_code  			
+		order by a.DATE_ID desc
+	</select>
+	<select id="selectbyoneday" parameterType="com.sunrise.scjd.domain.DataParam"
+		resultType="java.util.HashMap">
+		select
+		DATE_ID as DATE_ID,THHY_US as THHY_US,
+		THHYXZ_US as THHYXZ_US,THHY_AC as
+		THHY_AC,
+		AREA_NAME as PROVINCE_NAME
+		from RPT_QKTH_HY_JC_BUSI_D where
+		FLAG=#{flag,jdbcType=INTEGER}
+		and DATE_ID=#{dateId}
+		and busi_flag=#{productId}
+		and area_code=#{provinceCode}
+		order by THHY_US desc
+	</select>
+
+	<!-- <select id="queryChannel" parameterType="com.sunrise.scjd.domain.DataParam"
+		resultType="java.util.HashMap">
+		select SRC_CHANNEL_ID,SUB_CHANNEL_NAME,THHY_US from
+		rpt_qkth_hy_jc_ktchannel_d
+		<where>
+			date_id =#{dateId} and area_code=#{provinceCode} and
+			busi_flag=#{productId}
+
+		</where>
+		order by DATE_ID desc
+
+	</select> -->
+
+
+</mapper>

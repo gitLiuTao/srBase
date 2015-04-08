@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.ywjc.ywsl.YwslyjMapper">
+
+	
+	<select id="queryTableData1"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	 	select  all_usr ,
+               all_down_cnt,
+               all_price 
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	,hour_id as date_id
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	,month_id as date_id
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id between #{preDateId} and  #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	,date_id 
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id between #{preDateId} and  #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	,hour_id as date_id
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	,month_id as date_id
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id between #{preDateId} and  #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	,date_id 
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id between #{preDateId} and  #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        
+        and ids = #{ids}
+        and province_code = #{provinceCode}
+		order by date_id desc 
+	</select>
+	<select id="queryTableData2"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	 select  all_usr ,
+               all_down_cnt,
+               all_price,
+               PROVINCE_NAME
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        and ids = #{ids}
+        and par_province_code = #{provinceCode}
+		order by all_down_cnt desc 
+	</select>
+	<select id="queryTableData3"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	  select  all_usr ,
+               all_down_cnt,
+               all_price,
+               SRC_CHANNEL_ID,
+               SUB_CHANNEL_NAME,
+               CHANNEL_COMPANY
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        and ids = #{ids}
+        and province_code = #{provinceCode}
+		<if test="srcChannelId != null and srcChannelId !='' ">
+				and src_channel_id = #{srcChannelId}
+		</if>        
+		<if test="subChannelName != null and subChannelName !='' ">
+				and sub_channel_name = #{subChannelName}
+		</if>        
+		order by all_down_cnt desc 
+	</select>
+	<select id="queryTableData4"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	 select  	all_usr ,
+               all_down_cnt,
+               all_price,
+               SRC_CP_ID,
+               CP_NAME
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        and ids = #{ids}
+        and province_code = #{provinceCode}
+		<if test="srcCpId != null and srcCpId !='' ">
+				and src_cp_id = #{srcCpId}
+		</if>        
+		<if test="cpName != null and cpName !='' ">
+				and cp_name = #{cpName}
+		</if> 
+        
+		order by all_down_cnt desc 
+	</select>
+	<select id="queryTableData5"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	 select  	all_usr ,
+               all_down_cnt,
+               all_price,
+               PORTAL_NAME_KP
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        and ids = #{ids}
+        and province_code = #{provinceCode}
+		order by all_down_cnt desc 
+	</select>
+	<select id="queryTableData6"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	 select  	all_usr ,
+               all_down_cnt,
+               all_price,
+               COPYRIGHT_ID,
+               MUSIC_NAME
+        <choose>
+        	<when test="product_id == 1">
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_ring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_ring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_ring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</when>
+        	<otherwise>
+		        <choose>
+		        	<when test="dateType  == 'hour'">
+			        	from rpt_ywsl_zring_a1_hh
+			        	where date_id = #{dateId} and hour_id = #{hourId}
+		        	</when>
+		        	<when test="dateType  == 'month'">
+			        	from rpt_ywsl_zring_a1_mm
+			        	where month_id = #{dateId}
+		        	</when>
+		        	<otherwise>
+			        	from rpt_ywsl_zring_a1_dm
+			        	where date_id = #{dateId}
+		        	</otherwise>
+		        </choose>
+        	</otherwise>
+        </choose>
+        and ids = #{ids}
+        and province_code = #{provinceCode}
+		<if test="copyrightId != null and copyrightId !='' ">
+				and copyright_id = #{copyrightId}
+		</if>        
+		<if test="musicName != null and musicName !='' ">
+				and music_name = #{musicName}
+		</if> 
+		order by all_down_cnt desc 
+	</select>
+	 
+
+</mapper>

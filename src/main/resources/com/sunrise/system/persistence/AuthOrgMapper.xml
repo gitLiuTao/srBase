@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.system.persistence.AuthOrgMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.system.domain.AuthOrg">
+		<id column="ORG_ID" property="orgId" jdbcType="BIGINT" />
+		<result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+		<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+		<result column="PARENT_ID" property="parentId" jdbcType="BIGINT" />
+		<result column="ORG_ID_PATH" property="orgIdPath" jdbcType="VARCHAR" />
+		<result column="BIG_AREA" property="bigArea" jdbcType="BIGINT" />
+		<result column="PROVINCE_CODE" property="provinceCode" jdbcType="VARCHAR" />
+		<result column="PROVINCE_NAME" property="provinceName" jdbcType="VARCHAR" />
+		<result column="VGOP_PROVINCE_CODE" property="vgopProvinceCode" jdbcType="VARCHAR" />
+		<result column="VGOP_AREA_CODE" property="vgopAreaCode" jdbcType="VARCHAR" />
+		<result column="ORDER_NO" property="orderNo" jdbcType="BIGINT" />
+		<result column="BIG_AREA_NAME" property="bigAreaName" jdbcType="VARCHAR" />
+		<result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		ORG_ID, ORG_NAME, ORG_CODE, PARENT_ID, ORG_ID_PATH, BIG_AREA, PROVINCE_CODE, PROVINCE_NAME,
+		VGOP_PROVINCE_CODE, VGOP_AREA_CODE, ORDER_NO, BIG_AREA_NAME, CREATOR, CREATE_TIME
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_ORG
+		where ORG_ID = #{orgId,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from AUTH_ORG
+		where ORG_ID = #{orgId,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.sunrise.system.domain.AuthOrg">
+		insert into AUTH_ORG (ORG_ID, ORG_NAME, ORG_CODE,
+		PARENT_ID, ORG_ID_PATH,
+		BIG_AREA,
+		PROVINCE_CODE, PROVINCE_NAME, VGOP_PROVINCE_CODE,
+		VGOP_AREA_CODE, ORDER_NO, BIG_AREA_NAME,
+		CREATOR,
+		CREATE_TIME)
+		values (#{orgId,jdbcType=BIGINT}, #{orgName,jdbcType=VARCHAR}, #{orgCode,jdbcType=VARCHAR},
+		#{parentId,jdbcType=BIGINT}, #{orgIdPath,jdbcType=VARCHAR}, #{bigArea,jdbcType=BIGINT},
+		#{provinceCode,jdbcType=VARCHAR}, #{provinceName,jdbcType=VARCHAR}, #{vgopProvinceCode,jdbcType=VARCHAR},
+		#{vgopAreaCode,jdbcType=VARCHAR}, #{orderNo,jdbcType=BIGINT}, #{bigAreaName,jdbcType=VARCHAR},
+		#{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+	</insert>
+	<insert id="insertSelective" parameterType="com.sunrise.system.domain.AuthOrg">
+		insert into AUTH_ORG
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="orgId != null">
+				ORG_ID,
+			</if>
+			<if test="orgName != null">
+				ORG_NAME,
+			</if>
+			<if test="orgCode != null">
+				ORG_CODE,
+			</if>
+			<if test="parentId != null">
+				PARENT_ID,
+			</if>
+			<if test="orgIdPath != null">
+				ORG_ID_PATH,
+			</if>
+			<if test="bigArea != null">
+				BIG_AREA,
+			</if>
+			<if test="provinceCode != null">
+				PROVINCE_CODE,
+			</if>
+			<if test="provinceName != null">
+				PROVINCE_NAME,
+			</if>
+			<if test="vgopProvinceCode != null">
+				VGOP_PROVINCE_CODE,
+			</if>
+			<if test="vgopAreaCode != null">
+				VGOP_AREA_CODE,
+			</if>
+			<if test="orderNo != null">
+				ORDER_NO,
+			</if>
+			<if test="bigAreaName != null">
+				BIG_AREA_NAME,
+			</if>
+			<if test="creator != null">
+				CREATOR,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="orgId != null">
+				#{orgId,jdbcType=BIGINT},
+			</if>
+			<if test="orgName != null">
+				#{orgName,jdbcType=VARCHAR},
+			</if>
+			<if test="orgCode != null">
+				#{orgCode,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=BIGINT},
+			</if>
+			<if test="orgIdPath != null">
+				#{orgIdPath,jdbcType=VARCHAR},
+			</if>
+			<if test="bigArea != null">
+				#{bigArea,jdbcType=BIGINT},
+			</if>
+			<if test="provinceCode != null">
+				#{provinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceName != null">
+				#{provinceName,jdbcType=VARCHAR},
+			</if>
+			<if test="vgopProvinceCode != null">
+				#{vgopProvinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="vgopAreaCode != null">
+				#{vgopAreaCode,jdbcType=VARCHAR},
+			</if>
+			<if test="orderNo != null">
+				#{orderNo,jdbcType=BIGINT},
+			</if>
+			<if test="bigAreaName != null">
+				#{bigAreaName,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.sunrise.system.domain.AuthOrg">
+		update AUTH_ORG
+		<set>
+			<if test="orgName != null">
+				ORG_NAME = #{orgName,jdbcType=VARCHAR},
+			</if>
+			<if test="orgCode != null">
+				ORG_CODE = #{orgCode,jdbcType=VARCHAR},
+			</if>
+			<if test="parentId != null">
+				PARENT_ID = #{parentId,jdbcType=BIGINT},
+			</if>
+			<if test="orgIdPath != null">
+				ORG_ID_PATH = #{orgIdPath,jdbcType=VARCHAR},
+			</if>
+			<if test="bigArea != null">
+				BIG_AREA = #{bigArea,jdbcType=BIGINT},
+			</if>
+			<if test="provinceCode != null">
+				PROVINCE_CODE = #{provinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceName != null">
+				PROVINCE_NAME = #{provinceName,jdbcType=VARCHAR},
+			</if>
+			<if test="vgopProvinceCode != null">
+				VGOP_PROVINCE_CODE = #{vgopProvinceCode,jdbcType=VARCHAR},
+			</if>
+			<if test="vgopAreaCode != null">
+				VGOP_AREA_CODE = #{vgopAreaCode,jdbcType=VARCHAR},
+			</if>
+			<if test="orderNo != null">
+				ORDER_NO = #{orderNo,jdbcType=BIGINT},
+			</if>
+			<if test="bigAreaName != null">
+				BIG_AREA_NAME = #{bigAreaName,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				CREATOR = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where ORG_ID = #{orgId,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.sunrise.system.domain.AuthOrg">
+		update AUTH_ORG
+		set ORG_NAME = #{orgName,jdbcType=VARCHAR},
+		ORG_CODE = #{orgCode,jdbcType=VARCHAR},
+		PARENT_ID = #{parentId,jdbcType=BIGINT},
+		ORG_ID_PATH =
+		#{orgIdPath,jdbcType=VARCHAR},
+		BIG_AREA = #{bigArea,jdbcType=BIGINT},
+		PROVINCE_CODE = #{provinceCode,jdbcType=VARCHAR},
+		PROVINCE_NAME = #{provinceName,jdbcType=VARCHAR},
+		VGOP_PROVINCE_CODE = #{vgopProvinceCode,jdbcType=VARCHAR},
+		VGOP_AREA_CODE = #{vgopAreaCode,jdbcType=VARCHAR},
+		ORDER_NO = #{orderNo,jdbcType=BIGINT},
+		BIG_AREA_NAME =
+		#{bigAreaName,jdbcType=VARCHAR},
+		CREATOR = #{creator,jdbcType=VARCHAR},
+		CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+		where ORG_ID = #{orgId,jdbcType=BIGINT}
+	</update>
+	<select id ="selectByOrgCode"  resultMap="BaseResultMap" parameterType="java.lang.String">
+		select
+			<include refid="Base_Column_List"/>
+		from AUTH_ORG
+		WHERE ORG_CODE = #{orgCode,jdbcType=VARCHAR}
+	</select>
+</mapper>

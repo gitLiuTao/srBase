@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.system.persistence.AuthUserMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.system.domain.AuthUser">
+		<id column="SEQ_ID" property="seqId" jdbcType="DECIMAL" />
+		<result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="LOGIN_ID" property="loginId" jdbcType="VARCHAR" />
+		<result column="LOGIN_PWD" property="loginPwd" jdbcType="VARCHAR" />
+		<result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+		<result column="PWD_EFFECT_TIME" property="pwdEffectTime" jdbcType="TIMESTAMP" />
+		<result column="PWD_FAILURE_TIME" property="pwdFailureTime" jdbcType="TIMESTAMP" />
+		<result column="USER_STATE" property="userState" jdbcType="INTEGER" />
+		<result column="PWD_UPDATE_TIME" property="pwdUpdateTime" jdbcType="TIMESTAMP" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="OPERATE_TIME" property="operateTime" jdbcType="TIMESTAMP" />
+		<result column="SEX" property="sex" jdbcType="INTEGER" />
+		<result column="BIRTHDAY" property="birthday" jdbcType="TIMESTAMP" />
+		<result column="MAIL" property="mail" jdbcType="VARCHAR" />
+		<result column="GREETINGS" property="greetings" jdbcType="VARCHAR" />
+		<result column="REMARK" property="remark" jdbcType="VARCHAR" />
+		<result column="ORG_TYPE" property="orgType" jdbcType="INTEGER" />
+		<result column="ORG_KEY" property="orgKey" jdbcType="VARCHAR" />
+		<result column="GROUP_ID" property="groupId" jdbcType="BIGINT" />
+		<collection property="roles" column="{userId=LOGIN_ID}" ofType="com.sunrise.system.domain.AuthRole"
+			jdbcType="BIGINT" select="com.sunrise.system.persistence.AuthRoleUserMapper.selectRoleByUserId" />
+		<discriminator javaType="java.lang.Integer" column="ORG_TYPE" jdbcType="INTEGER">
+			<case value="0" resultMap="AreaNameResultMap" />
+			<case value="1" resultMap="AreaNameResultMap" />
+			<case value="2" resultMap="OrgNameResultMap" />
+		</discriminator>
+	</resultMap>
+	<resultMap id="AreaNameResultMap" type="com.sunrise.system.domain.AuthUser" extends="BaseResultMap">
+		<result property="orgName" column="AREA_NAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="OrgNameResultMap" type="com.sunrise.system.domain.AuthUser" extends="BaseResultMap">
+		<result property="orgName" column="ORG_NAME" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		SEQ_ID, USER_NAME, LOGIN_ID, LOGIN_PWD, MOBILE, PWD_EFFECT_TIME, PWD_FAILURE_TIME,
+		USER_STATE,
+		PWD_UPDATE_TIME, OPERATOR, OPERATE_TIME, SEX, BIRTHDAY, MAIL, GREETINGS,
+		REMARK, ORG_TYPE, ORG_KEY, GROUP_ID
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_USER
+		where SEQ_ID = #{seqId,jdbcType=BIGINT}
+	</select>
+	<select id="selectByloginId" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_USER
+		where LOGIN_ID =  #{loginId,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+		delete from AUTH_USER
+		where SEQ_ID = #{seqId,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.sunrise.system.domain.AuthUser">
+		insert into AUTH_USER (SEQ_ID, USER_NAME, LOGIN_ID,
+		LOGIN_PWD, MOBILE,
+		PWD_EFFECT_TIME,
+		PWD_FAILURE_TIME, USER_STATE, PWD_UPDATE_TIME,
+		OPERATOR, OPERATE_TIME, SEX,
+		BIRTHDAY, MAIL, GREETINGS,
+		REMARK, ORG_TYPE, ORG_KEY,
+		GROUP_ID)
+		values (#{seqId,jdbcType=BIGINT}, #{userName,jdbcType=VARCHAR},
+		#{loginId,jdbcType=VARCHAR},
+		#{loginPwd,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},
+		#{pwdEffectTime,jdbcType=TIMESTAMP},
+		#{pwdFailureTime,jdbcType=TIMESTAMP}, #{userState,jdbcType=INTEGER},
+		#{pwdUpdateTime,jdbcType=TIMESTAMP},
+		#{operator,jdbcType=VARCHAR}, #{operateTime,jdbcType=TIMESTAMP},
+		#{sex,jdbcType=INTEGER},
+		#{birthday,jdbcType=TIMESTAMP}, #{mail,jdbcType=VARCHAR}, #{greetings,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR}, #{orgType,jdbcType=INTEGER}, #{orgKey,jdbcType=VARCHAR},
+		#{groupId,jdbcType=BIGINT})
+	</insert>
+	
+	<!--通过groupId2查询  -->
+    	<select id="selectBygroupId2" resultMap="BaseResultMap" parameterType="java.util.Map">
+		 select 
+    	SEQ_ID, USER_NAME, LOGIN_ID,
+		LOGIN_PWD, MOBILE,
+		PWD_EFFECT_TIME,
+		PWD_FAILURE_TIME, USER_STATE, PWD_UPDATE_TIME,
+		OPERATOR, OPERATE_TIME, SEX,
+		BIRTHDAY, MAIL, GREETINGS,
+		REMARK, ORG_TYPE, ORG_KEY,
+		GROUP_ID
+    	FROM
+    	auth_user
+ 		 where login_ID in (
+ 	 			  select User_ID
+          		  from AUTH_GROUP_USER 
+         		  where GROUP_ID =${groupsId}
+           		  ) 
+            
+     
+	</select>
+	<insert id="insertSelective" parameterType="com.sunrise.system.domain.AuthUser">
+		<selectKey resultType="java.lang.Long" order="BEFORE" keyProperty="seqId">
+		select SEQ_AUTH_USER.nextval as seqId from dual
+		</selectKey>
+		insert into AUTH_USER
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="seqId != null">
+				SEQ_ID,
+			</if>
+			<if test="userName != null">
+				USER_NAME,
+			</if>
+			<if test="loginId != null">
+				LOGIN_ID,
+			</if>
+			<if test="loginPwd != null">
+				LOGIN_PWD,
+			</if>
+			<if test="mobile != null">
+				MOBILE,
+			</if>
+			<if test="pwdEffectTime != null">
+				PWD_EFFECT_TIME,
+			</if>
+			<if test="pwdFailureTime != null">
+				PWD_FAILURE_TIME,
+			</if>
+			<if test="userState != null">
+				USER_STATE,
+			</if>
+			<if test="pwdUpdateTime != null">
+				PWD_UPDATE_TIME,
+			</if>
+			<if test="operator != null">
+				OPERATOR,
+			</if>
+			<if test="operateTime != null">
+				OPERATE_TIME,
+			</if>
+			<if test="sex != null">
+				SEX,
+			</if>
+			<if test="birthday != null">
+				BIRTHDAY,
+			</if>
+			<if test="mail != null">
+				MAIL,
+			</if>
+			<if test="greetings != null">
+				GREETINGS,
+			</if>
+			<if test="remark != null">
+				REMARK,
+			</if>
+			<if test="orgType != null">
+				ORG_TYPE,
+			</if>
+			<if test="orgKey != null">
+				ORG_KEY,
+			</if>
+			<if test="groupId != null">
+				GROUP_ID,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="seqId != null">
+				#{seqId,jdbcType=BIGINT},
+			</if>
+			<if test="userName != null">
+				#{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="loginId != null">
+				#{loginId,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPwd != null">
+				#{loginPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="pwdEffectTime != null">
+				#{pwdEffectTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pwdFailureTime != null">
+				#{pwdFailureTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userState != null">
+				#{userState,jdbcType=INTEGER},
+			</if>
+			<if test="pwdUpdateTime != null">
+				#{pwdUpdateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="operator != null">
+				#{operator,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				#{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sex != null">
+				#{sex,jdbcType=INTEGER},
+			</if>
+			<if test="birthday != null">
+				#{birthday,jdbcType=TIMESTAMP},
+			</if>
+			<if test="mail != null">
+				#{mail,jdbcType=VARCHAR},
+			</if>
+			<if test="greetings != null">
+				#{greetings,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="orgType != null">
+				#{orgType,jdbcType=INTEGER},
+			</if>
+			<if test="orgKey != null">
+				#{orgKey,jdbcType=VARCHAR},
+			</if>
+			<if test="groupId != null">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.sunrise.system.domain.AuthUser">
+		update AUTH_USER
+		<set>
+			<if test="userName != null">
+				USER_NAME = #{userName,jdbcType=VARCHAR},
+			</if>
+			<if test="loginId != null">
+				LOGIN_ID = #{loginId,jdbcType=VARCHAR},
+			</if>
+			<if test="loginPwd != null">
+				LOGIN_PWD = #{loginPwd,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				MOBILE = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="pwdEffectTime != null">
+				PWD_EFFECT_TIME = #{pwdEffectTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="pwdFailureTime != null">
+				PWD_FAILURE_TIME = #{pwdFailureTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="userState != null">
+				USER_STATE = #{userState,jdbcType=INTEGER},
+			</if>
+			<if test="pwdUpdateTime != null">
+				PWD_UPDATE_TIME = #{pwdUpdateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="operator != null">
+				OPERATOR = #{operator,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				OPERATE_TIME = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="sex != null">
+				SEX = #{sex,jdbcType=INTEGER},
+			</if>
+			<if test="birthday != null">
+				BIRTHDAY = #{birthday,jdbcType=TIMESTAMP},
+			</if>
+			<if test="mail != null">
+				MAIL = #{mail,jdbcType=VARCHAR},
+			</if>
+			<if test="greetings != null">
+				GREETINGS = #{greetings,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				REMARK = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="orgType != null">
+				ORG_TYPE = #{orgType,jdbcType=INTEGER},
+			</if>
+			<if test="orgKey != null">
+				ORG_KEY = #{orgKey,jdbcType=VARCHAR},
+			</if>
+			<if test="groupId != null">
+				GROUP_ID = #{groupId,jdbcType=BIGINT},
+			</if>
+		</set>
+		where SEQ_ID = #{seqId,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.sunrise.system.domain.AuthUser">
+		update AUTH_USER
+		set USER_NAME = #{userName,jdbcType=VARCHAR},
+		LOGIN_ID = #{loginId,jdbcType=VARCHAR},
+		LOGIN_PWD = #{loginPwd,jdbcType=VARCHAR},
+		MOBILE = #{mobile,jdbcType=VARCHAR},
+		PWD_EFFECT_TIME = #{pwdEffectTime,jdbcType=TIMESTAMP},
+		PWD_FAILURE_TIME = #{pwdFailureTime,jdbcType=TIMESTAMP},
+		USER_STATE = #{userState,jdbcType=INTEGER},
+		PWD_UPDATE_TIME = #{pwdUpdateTime,jdbcType=TIMESTAMP},
+		OPERATOR =
+		#{operator,jdbcType=VARCHAR},
+		OPERATE_TIME = #{operateTime,jdbcType=TIMESTAMP},
+		SEX = #{sex,jdbcType=INTEGER},
+		BIRTHDAY =
+		#{birthday,jdbcType=TIMESTAMP},
+		MAIL = #{mail,jdbcType=VARCHAR},
+		GREETINGS = #{greetings,jdbcType=VARCHAR},
+		REMARK =
+		#{remark,jdbcType=VARCHAR},
+		ORG_TYPE = #{orgType,jdbcType=INTEGER},
+		ORG_KEY = #{orgKey,jdbcType=VARCHAR},
+		GROUP_ID =
+		#{groupId,jdbcType=BIGINT}
+		where SEQ_ID = #{seqId,jdbcType=BIGINT}
+	</update>
+	<select id="selectByLoginId" resultMap="BaseResultMap" parameterType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_USER
+		where LOGIN_ID=#{loginId,jdbcType=VARCHAR}
+	</select>
+	<select id="selectBySelective" resultMap="BaseResultMap" parameterType="java.util.HashMap">
+		select
+		u.SEQ_ID, u.USER_NAME, u.LOGIN_ID, u.LOGIN_PWD, u.MOBILE, u.PWD_EFFECT_TIME, u.PWD_FAILURE_TIME,
+		u.USER_STATE,
+		u.PWD_UPDATE_TIME,
+		u.OPERATOR,
+		u.OPERATE_TIME, u.SEX, u.BIRTHDAY, u.MAIL, u.GREETINGS,
+		u.REMARK, u.ORG_TYPE, u.ORG_KEY,
+		u.GROUP_ID,ba.AREA_NAME,o.ORG_NAME AS orgName
+		from AUTH_USER u left join AUTH_BIG_AREA ba on ba.AREA_ID=u.ORG_KEY left join
+		AUTH_ORG
+		o on
+		o.ORG_ID=u.ORG_KEY
+		<if test="_parameter!=null">
+			<where>
+				<if test="loginId != null and loginId!=''">
+					and u.LOGIN_ID like '%${loginId}%'
+				</if>
+				<if test="userName != null and userName!=''">
+					and u.USER_NAME like '%${userName}%'
+				</if>
+				<if test="userState !=null">
+					and u.USER_STATE = #{userState,jdbcType=INTEGER}
+				</if>
+				<if test="orgKey != null and orgKey!='' and orgKey!=99">
+					and u.ORG_KEY = #{orgKey,jdbcType=VARCHAR}
+				</if>
+			</where>
+		</if>
+	</select>
+	<!--用户组添加用户查询  -->
+	<select id="selectByuserSelective" resultMap="BaseResultMap" parameterType="java.util.HashMap">
+	  select
+   	u.SEQ_ID, u.USER_NAME, u.LOGIN_ID, u.LOGIN_PWD, u.MOBILE, u.PWD_EFFECT_TIME, u.PWD_FAILURE_TIME,
+		u.USER_STATE,
+		u.PWD_UPDATE_TIME,
+		u.OPERATOR,
+		u.OPERATE_TIME, u.SEX, u.BIRTHDAY, u.MAIL, u.GREETINGS,
+		u.REMARK, u.ORG_TYPE, u.ORG_KEY,
+		u.GROUP_ID
+   from AUTH_USER u where u.login_id not in (select t.user_id from auth_group_user t)
+		<if test="_parameter!=null">
+		
+				<if test="loginId != null and loginId!=''">
+					and u.LOGIN_ID like '%${loginId}%'
+				</if>
+				<if test="userName != null and userName!=''">
+					and u.USER_NAME like '%${userName}%'
+				</if>
+				<if test="userState !=null">
+					and u.USER_STATE = #{userState,jdbcType=INTEGER}
+				</if>
+				<if test="orgKey != null and orgKey!=''">
+					and u.ORG_KEY = #{orgKey,jdbcType=VARCHAR}
+				</if>
+		</if>
+	</select>
+</mapper>

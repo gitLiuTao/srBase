@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.ywjc.RuleConfigMapper">
+
+	<select id="queryDataList"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+		select 
+			<choose>
+				<when test="queryTypeFlag == 'BT' ">
+					distinct t.busi_type,t.busi_type_name
+				</when>
+				<when test="queryTypeFlag == 'RI' ">
+					distinct  t.rule_id,t.rule_name  
+				</when>
+				<otherwise>
+					* 
+				</otherwise>
+			</choose>
+		from dim_ywsl_rule_config t 
+		<where>
+			<if test="busiType != null and busiType != '' ">
+				 and busi_type = #{busiType}
+			</if>
+			<if test="ruleCycle != null and ruleCycle != '' ">
+				 and rule_cycle = #{ruleCycle}
+			</if>
+			<if test="ruleId != null and ruleId != '' ">
+				 and rule_id = #{ruleId}
+			</if>
+			<if test="kvalueId != null and kvalueId != '' ">
+				 and k_value_id = #{kvalueId}
+			</if>
+		</where>
+		order by 
+		<choose>
+				<when test="queryTypeFlag == 'BT' ">
+					  busi_type_name
+				</when>
+				<when test="queryTypeFlag == 'RI' ">
+					  rule_name  
+				</when>
+				<otherwise>
+					 busi_type,  type_top, type_sub , rule_type 
+				</otherwise>
+			</choose>
+	</select>
+	
+	<update id="updateConfig" parameterType="map">
+		update dim_ywsl_rule_config t set t.k_value_value = #{value}
+		where t.config_id = #{id}
+	</update>
+	
+	<update id="updateState" parameterType="com.sunrise.base.dataEntity.IData">
+		update dim_ywsl_rule_config t set t.state = #{state}
+		where t.busi_type = #{busitype}  and t.rule_id = #{ruleid} and t.rule_cycle =#{rulecycle}
+	
+	</update>
+
+</mapper>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.usersAnalysis.MonthlyNewLossMapper">
+
+	<select id="queryOneData" resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+	select   
+           xzby_cur_usr,
+           xzby_cur_music_price,
+           ls_cur_usr,
+           lsby_cur_music_price,
+           xzby_cur_usr_hb,
+           xzby_cur_music_price_hb,
+           ls_cur_usr_hb,
+           lsby_cur_music_price_hb
+          	<choose>
+          		<when test="productId == 1 ">
+          			<choose>
+          				<when test="dateType == 'month'">
+          					,month_id as date_id 
+          					from rpt_online_dy_xzls_mm 
+			        		where month_id = #{dateId}
+          				</when>
+          				<otherwise>
+          					,date_id
+          					from rpt_online_dy_xzls_dm 
+			        		where date_id  = #{dateId}
+          				</otherwise>
+          			</choose>
+          		</when>
+          		<otherwise>
+          			<choose>
+          				<when test="dateType == 'month'">
+          					,month_id as date_id 
+          					from rpt_song_dy_xzls_mm 
+			        		where month_id =  #{dateId}
+          				</when>
+          				<otherwise>
+          					,date_id
+          					from rpt_song_dy_xzls_dm 
+			        		where date_id =  #{dateId}
+          				</otherwise>
+          			</choose>
+          			   and product_id = #{productId}
+          		</otherwise>
+          	</choose>
+        and province_code = #{provinceCode}
+		order by date_id
+	</select>
+
+
+	<select id="queryTableData1"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+		select   
+           xzby_cur_usr,
+          xzby_cur_music_price,
+           ls_cur_usr,
+           lsby_cur_music_price
+          	<choose>
+          		<when test="productId == 1 ">
+          			<choose>
+          				<when test="dateType == 'month'">
+          					,month_id as date_id 
+          					from rpt_online_dy_xzls_mm 
+			        		where month_id between #{preDateId} and  #{dateId}
+          				</when>
+          				<otherwise>
+          					,date_id
+          					from rpt_online_dy_xzls_dm 
+			        		where date_id between #{preDateId} and  #{dateId}
+          				</otherwise>
+          			</choose>
+          		</when>
+          		<otherwise>
+          			<choose>
+          				<when test="dateType == 'month'">
+          					,month_id as date_id 
+          					from rpt_song_dy_xzls_mm 
+			        		where month_id between #{preDateId} and  #{dateId}
+          				</when>
+          				<otherwise>
+          					,date_id
+          					from rpt_song_dy_xzls_dm 
+			        		where date_id between #{preDateId} and  #{dateId}
+          				</otherwise>
+          			</choose>
+          			   and product_id = #{productId}
+          		</otherwise>
+          	</choose>
+        and province_code = #{provinceCode}
+		order by date_id
+		 
+	</select>
+	<select id="queryTableData2"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+		 select 
+           province_name,
+           xzby_cur_usr,
+           xzby_cur_music_price,
+           ls_cur_usr,
+          lsby_cur_music_price
+		<choose>
+          		<when test="productId == 1 ">
+          			<choose>
+          				<when test="dateType == 'month'">
+          					from rpt_online_dy_xzls_mm 
+			        		where month_id =  #{dateId}
+          				</when>
+          				<otherwise>
+          					from rpt_online_dy_xzls_dm 
+			        		where date_id =  #{dateId}
+          				</otherwise>
+          			</choose>
+          		</when>
+          		<otherwise>
+          			<choose>
+          				<when test="dateType == 'month'">
+          					from rpt_song_dy_xzls_mm 
+			        		where month_id =  #{dateId}
+          				</when>
+          				<otherwise>
+          					from rpt_song_dy_xzls_dm 
+			        		where date_id =  #{dateId}
+          				</otherwise>
+          			</choose>
+          			   and product_id = #{productId}
+          		</otherwise>
+          	</choose>
+          	and par_province_code = #{provinceCode}
+          	order by xzby_cur_usr desc
+	</select>
+	<select id="queryTableData3"  resultType="java.util.HashMap" parameterType="com.sunrise.base.dataEntity.IData">
+		  select 
+          	channel_id ,         
+			channel_name ,       
+			channel_co_name ,    
+            xzby_cur_usr,
+            xzby_cur_music_price,
+            ls_cur_usr,
+            lsby_cur_music_price
+		<choose>
+          		<when test="productId == 1 ">
+          			<choose>
+          				<when test="dateType == 'month'">
+          					from rpt_online_qd_xzls_mm 
+			        		where month_id =  #{dateId}
+          				</when>
+          				<otherwise>
+          					from rpt_online_qd_xzls_dm 
+			        		where date_id =  #{dateId}
+          				</otherwise>
+          			</choose>
+          		</when>
+          		<otherwise>
+          			<choose>
+          				<when test="dateType == 'month'">
+          					from rpt_song_qd_xzls_mm 
+			        		where month_id =  #{dateId}
+          				</when>
+          				<otherwise>
+          					from rpt_song_qd_xzls_dm 
+			        		where date_id =  #{dateId}
+          				</otherwise>
+          			</choose>
+          			   and product_id = #{productId}
+          		</otherwise>
+          	</choose>
+          	<if test="srcChannelId !=null and srcChannelId != '' ">
+          		and  channel_id = #{srcChannelId}
+          	</if>
+          	<if test="subChannelName !=null and subChannelName != '' ">
+          		and  channel_name like '%'||#{subChannelName}||'%'
+          	</if>
+          	order by xzby_cur_usr desc
+	</select>
+
+</mapper>

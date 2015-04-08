@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.consume.GreyListMapper">
+	<!-- 条件查询数据 -->
+	<select id="selectGrey" parameterType="com.sunrise.system.domain.Grey" resultType="java.util.Map">
+		select 
+		ID,
+		BUSI_TYPE as YW,
+		BUSI_NAME as SJ,
+		JH_TYPE as SJS,
+		FAZHI as FZ 
+		from DIM_YWJK_HMD_CONFIG
+		where JH_TYPE =#{time,jdbcType=BIGINT} 
+		and BUSI_TYPE =#{productId,jdbcType=BIGINT}
+	</select>
+	
+	<!-- 产品类型的下拉查询 -->
+	<select id="selectOptionID" resultType="java.util.HashMap" parameterType="com.sunrise.system.domain.Grey">
+		select 
+			distinct BUSI_TYPE, BUSI_NAME 
+		FROM DIM_YWJK_HMD_CONFIG
+	</select>
+	
+	<!-- 修改阀值保存 -->
+	<update id="updateFZ">
+		update DIM_YWJK_HMD_CONFIG
+		set FAZHI = #{inputFZ,jdbcType=VARCHAR}
+		where ID = #{ID,jdbcType=BIGINT}
+	</update>
+</mapper>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.AreaMapper">
+
+	<select id="getArea"  resultType="java.util.HashMap">
+		select par_province_code as up_area_code, province_code as area_code,province_name as area_name
+		from dim_province_jc3  where province_code!=99
+		order by area_code desc
+	</select>
+
+</mapper>

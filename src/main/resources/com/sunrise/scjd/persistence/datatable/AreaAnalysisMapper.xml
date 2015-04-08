@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.AreaAnalysisMapper">
+	<sql id="Base_Column_List">
+		PROVINCE_NAME,
+		<choose>			
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_USR as USR, ALL_USR_HB as USR_HB,
+				ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+				ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_USR as USR, MF_USR_HB as USR_HB,
+				MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+				MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_USR as USR, SF_USR_HB as USR_HB,
+				SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+				SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+		</choose>
+	</sql>
+
+	<!-- 在线听 -->
+	<sql id="listen_List">
+		PROVINCE_NAME
+		<choose>
+			<when test="downFlag !=null and downFlag ==0">
+			<![CDATA[
+				,ALL_DOWN_USR as TEST_USR,
+	            ALL_DOWN_USR_HB as TEST_USR_HB,
+	            ALL_DOWN_CNT as TEST_DOWN_CNT,
+	            ALL_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+			<when test="downFlag !=null and downFlag ==1">
+			<![CDATA[
+				,CI_DOWN_USR as TEST_USR,
+	            CI_DOWN_USR_HB  as TEST_USR_HB,
+	            CI_DOWN_CNT as TEST_DOWN_CNT,
+	            CI_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+			<when test="downFlag !=null and downFlag ==3">
+            <![CDATA[
+				,PAY_MONTH_DOWN_USR as TEST_USR,
+	            PAY_MONTH_DOWN_USR_HB  as TEST_USR_HB,
+	            PAY_MONTH_DOWN_CNT as TEST_DOWN_CNT,
+	            PAY_MONTH_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+		</choose>
+		
+	</sql>
+
+	<!-- 渠道专属包月展示字段-->
+	<sql id="Base_Column_List_channelByMonth">
+		<![CDATA[
+			PROVINCE_NAME,
+			DOWN_USR, 
+			DOWN_USR_HB,
+			USED_USR ,
+			USED_USR_HB,
+			DOWN_CNT,
+			DOWN_CNT_HB,
+			ALL_PRICE as PRICE,
+			ALL_PRICE_HB as PRICE_HB
+		]]>
+	</sql>
+
+	<sql id="OrderBy_Clause">
+		<choose>			
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+		    <![CDATA[
+				MF_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWN_CNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+	<!-- 个性化彩铃 -->
+	<sql id="Base_order_List_diy">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWN_CNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+	<!-- 振铃业务分析 -->
+	<sql id="Where_ZClause">
+		<if test="_parameter!=null">
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and par_province_code = #{provinceCode,jdbcType=INTEGER}
+			</if>
+		</if>
+	</sql>
+	<sql id="Where_Clause">
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+	</sql>
+	<!-- 渠道专属包月条件 -->
+	<sql id="Where_Clause_channelByMonth">
+		<if test="_parameter!=null">
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcMusicId!=null and srcMusicId!=''">
+				and SRC_MUSIC_ID like '%${srcMusicId}%'
+			</if>
+			<if test="srcMusicId ==null or srcMusicId ==''">
+				and SRC_MUSIC_ID = -1
+			</if>
+			<if test="srcMusicName!=null and srcMusicName!=''">
+				and SRC_MUSIC_NAME like '%${srcMusicName}%'
+			</if>
+		</if>
+	</sql>
+   <sql id="Where_Ring_Clause">
+		 
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+		 
+	</sql>
+	<!-- 歌曲下载模块sql -->
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_SONG_DM
+			where DATE_ID=#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_SONG_MM
+			where month_id=#{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_Clause" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc  
+	</select>
+	<!-- 咪咕高清特会sql -->
+   <select id="selectBySelective12" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PROVINCE_NAME,ALL_USR as USR, ALL_USR_HB as USR_HB,
+		ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+		ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB
+		    <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="productId!=null ">
+				and data_sf_tag=#{productId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by ALL_DOWN_CNT desc
+	</select>
+	<!-- 曲库特会模块sql -->
+	<select id="selectBySelective15" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		area_name as PROVINCE_NAME,  THHYXZ_US ,
+		THHY_AC from  rpt_qkth_hy_jc_busi_d 	
+		<where>	
+	    busi_flag=#{productId,jdbcType=INTEGER}
+		AND pre_area_code=#{provinceCode,jdbcType=INTEGER}
+		AND flag=1				
+		AND date_id=#{dateId,jdbcType=INTEGER} 
+		</where>
+		order by
+		THHY_AC desc
+	</select>
+	<select id="selectBySelective14" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		area_name as PROVINCE_NAME,  THHY_US as THHY_US 
+		from  rpt_qkth_hy_jc_busi_d 	
+		<where>	
+	    busi_flag=#{productId,jdbcType=INTEGER}
+		AND pre_area_code=#{provinceCode,jdbcType=INTEGER}
+		AND flag=1				
+		AND date_id=#{dateId,jdbcType=INTEGER} 
+		</where>
+		order by
+		THHY_US desc
+	</select>
+	<!-- 彩铃sql -->
+	<select id="selectBySelectiveRing" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RING_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RING_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_Ring_Clause" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	<!-- 在线听 -->
+	<select id="selectByzxt" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="listen_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ONLINE_DM
+			WHERE  DATE_ID=#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_ONLINE_MM
+			WHERE  MONTH_ID =#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="ids!=null and ids!=''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if>
+		<if test="provinceCode!=null and provinceCode!=''">
+			and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+		</if>
+		order by TEST_DOWN_CNT  desc
+	</select>
+
+	<!-- 渠道专属包月模块sql -->
+	<select id="selectBySelective_channelByMonth" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List_channelByMonth" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_QDZS_DM
+			WHERE  DATE_ID=#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_QDZS_MM
+			WHERE  MONTH_ID =#{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_Clause_channelByMonth" />
+		order by DOWN_CNT desc
+	</select>
+	
+	<!-- 异动监测中振铃业务分析页面的按地域分析数据查询 -->
+	<select id="zringselectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ZRING_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_ZRING_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ZClause" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	
+	
+		<!-- 铃音盒调用sql -->
+	<sql id="Where_ClauseRingBox">
+		<if test="ids!=null and ids!=''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if>
+		<if test="provinceCode!=null and provinceCode!=''">
+			and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+		</if>
+	</sql>
+		
+	<select id="selectByRingBoxSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGBOX_DM
+			where DATE_ID=#{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RINGBOX_MM
+			where month_id=#{dateId,jdbcType=INTEGER} 
+		</if>
+		<include refid="Where_ClauseRingBox" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	
+	<!-- 铃音盒拆分后 -->
+	
+	<select id="selectByRingBoxCFSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGBOX_CF_DM
+			where DATE_ID=#{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RINGBOX_CF_MM
+			where month_id=#{dateId,jdbcType=INTEGER} 
+		</if>
+		<include refid="Where_ClauseRingBox" />
+		order by
+		<include refid="OrderBy_Clause" />
+		desc
+	</select>
+	
+	<!-- 个性化彩铃地域分析SQL -->
+		<select id="selectRingdiy" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGDIY_DM
+			where DATE_ID=#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RINGDIY_MM
+			where month_id =#{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+		order by
+		<include refid="Base_order_List_diy" />
+		desc
+	</select>
+	
+	<!-- 咪咕特会地域分析 -->
+	<select id="selectBySelective_migu" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select  a.province_name,   <!-- 地域名称 -->
+                a.member_cnt,		<!-- 新增用户数 -->
+                case when b.member_cnt  is null  then  0 
+                     when b.member_cnt=0 then 0
+                     else round((a.member_cnt-b.member_cnt)*100 / b.member_cnt ,2) end   member_cnt_hb,   <!--新增用户环比 -->
+                a.member_total_cnt,		<!-- 到达用户数 -->
+                case when b.member_total_cnt  is null  then  0 
+                     when b.member_total_cnt=0 then 0
+                     else round((a.member_total_cnt-b.member_total_cnt)*100 / b.member_total_cnt,2)  end   member_total_cnt_hb  <!-- 到达用户环比数 -->
+         from    
+               (<choose><!-- 查询当天地域分析数据 -->
+                	<when test="provinceCode==99">
+                	 select province_code province_id,province province_name,sum(member_cnt) member_cnt ,sum(member_total_cnt) member_total_cnt
+                		from prt_rep_member_sum_dm 
+                		where user_type_id=4 
+			                <if test="dateId!=null and dateId!=''">
+								and report_date=#{dateId,jdbcType=INTEGER}
+							</if>
+						 group by province_code,province
+                	</when>
+                	<otherwise>
+                		select province_code province_id,area_code area_code,area province_name,sum(member_cnt) member_cnt ,sum(member_total_cnt) member_total_cnt
+                		from prt_rep_member_sum_dm 
+                		where user_type_id=4 
+                		and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			            <if test="dateId!=null and dateId!=''">
+							and report_date=#{dateId,jdbcType=INTEGER}
+						</if>
+						 group by province_code,area,area_code
+                	</otherwise>
+                </choose>
+                ) a   left join 
+
+               (<choose><!-- 查询前一天地域分析数据 -->
+                	<when test="provinceCode==99">
+                	 select province_code province_id,province province_name,sum(member_cnt) member_cnt ,sum(member_total_cnt) member_total_cnt
+                		from prt_rep_member_sum_dm 
+                		where user_type_id=4 
+			                <if test="dateId!=null and dateId!=''">
+								and report_date=#{preDateId,jdbcType=INTEGER}
+							</if>
+						 group by province_code,province
+                	</when>
+                	<otherwise>
+                		select province_code province_id,area_code area_code,area province_name,sum(member_cnt) member_cnt ,sum(member_total_cnt) member_total_cnt
+                		from prt_rep_member_sum_dm 
+                		where user_type_id=4 
+                		and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			            <if test="dateId!=null and dateId!=''">
+							and report_date=#{preDateId,jdbcType=INTEGER}
+						</if>
+						 group by province_code,area,area_code
+                	</otherwise>
+                </choose>
+                ) b 
+         <choose>
+          <when test="provinceCode==99">
+	        on a.province_id = b.province_id
+	      </when>
+	      <otherwise>
+	        on a.province_id = b.province_id
+	        and a.area_code=b.area_code
+	      </otherwise>
+	    </choose>
+        order by a.member_cnt desc
+	</select>
+<!-- 咪咕高清特会升级包sql -->
+   <select id="selectBySelective17" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PROVINCE_NAME,ALL_USR as USR, ALL_USR_HB as USR_HB,
+		ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+		ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB
+		    <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_dm
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_mm
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by ALL_DOWN_CNT desc
+	</select>
+</mapper>

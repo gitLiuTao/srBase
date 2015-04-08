@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.SongAnalysisMapper">
+	
+	<!-- 个性化彩铃业务分析 -->
+	<sql id="Base_Column_List_Diy">
+		 COPYRIGHT_ID,MUSIC_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+	<!-- 个性化彩铃 -->
+	<sql id="Base_order_List_diy">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWN_CNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<!-- 在线听 -->
+	<sql id="listen_List">
+
+		RING_ID as COPYRIGHT_ID,
+		MUSIC_NAME as MUSIC_NAME
+		<choose>
+			<when test="downFlag !=null and downFlag ==0">
+			<![CDATA[
+				,ALL_DOWN_USR as TEST_USR,
+	            ALL_DOWN_USR_HB as TEST_USR_HB,
+	            ALL_DOWN_CNT as TEST_DOWN_CNT,
+	            ALL_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+			<when test="downFlag !=null and downFlag ==1">
+			<![CDATA[
+				,CI_DOWN_USR as TEST_USR,
+	            CI_DOWN_USR_HB  as TEST_USR_HB,
+	            CI_DOWN_CNT as TEST_DOWN_CNT,
+	            CI_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+			<when test="downFlag !=null and downFlag ==3">
+            <![CDATA[
+				,PAY_MONTH_DOWN_USR as TEST_USR,
+	            PAY_MONTH_DOWN_USR_HB  as TEST_USR_HB,
+	            PAY_MONTH_DOWN_CNT as TEST_DOWN_CNT,
+	            PAY_MONTH_DOWN_CNT_HB as TEST_DOWN_CNT_HB
+			]]>
+			</when>
+		</choose>
+
+	</sql>
+	
+	<sql id="Base_order_List">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_DOWN_CNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWN_CNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<sql id="Where_Clause">
+		<if test="_parameter!=null">
+			<where>
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="dateId!=null and dateId!=''">
+					and DATE_ID=#{dateId,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and COPYRIGHT_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+				and MUSIC_NAME is not null
+			</where>
+		</if>
+	</sql>
+	
+	<!-- 个性化彩铃业务分析 -->
+	<sql id="Where_Clause_Diy">
+	
+		<if test="_parameter!=null">
+			<where>
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="dateId!=null and dateId!=''">
+					and DATE_ID=#{dateId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and COPYRIGHT_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+			</where>
+		</if>
+	</sql>
+	<!-- 振铃业务分析 -->
+	<sql id="Where_ZClause">
+		<if test="_parameter!=null">
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="copyrightId!=null and copyrightId!=''">
+				and ring_id like '%${copyrightId}%'
+			</if>
+			<if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+			</if>
+			and MUSIC_NAME is not null
+		</if>
+	</sql>
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		COPYRIGHT_ID as COPYRIGHT_ID,MUSIC_NAME as MUSIC_NAME,SRC_SINGER_NAME as SINGER_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+		 <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_SONG_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_SONG_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+		
+		<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and COPYRIGHT_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+				and MUSIC_NAME is not null
+		order by
+		<include refid="Base_order_List" />
+		desc
+	</select>
+	<!--咪咕高清特会sql  -->
+	<select id="selectBySelective12" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		COPYRIGHT_ID,MUSIC_NAME,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN,SRC_SINGER_NAME AS SINGER_NAME
+		  <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="productId!=null ">
+				and data_sf_tag=#{productId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+			<if test="copyrightId!=null and copyrightId!=''">
+				and COPYRIGHT_ID like '%${copyrightId}%'
+			</if>
+		   <if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+		   </if>
+		and MUSIC_NAME is not null
+		order by ALL_DOWN_CNT desc
+	</select>
+
+	<!--彩铃sql  -->
+	<select id="selectBySelectiveRing" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		COPYRIGHT_ID as COPYRIGHT_ID,MUSIC_NAME as MUSIC_NAME,SRC_SINGER_NAME as SINGER_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+	    <if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from RPT_YDJC_RING_DM 
+			WHERE DATE_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from RPT_YDJC_RING_MM 
+			WHERE MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+        <if test="ids!=null and ids!=''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if>
+		<if test="productId!=null ">
+			and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+		</if>
+		<if test="provinceCode!=null and provinceCode!=''">
+			and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="copyrightId!=null and copyrightId!=''">
+			and COPYRIGHT_ID like '%${copyrightId}%'
+		</if>
+		<if test="musicName!=null and musicName!=''">
+			and MUSIC_NAME like '%${musicName}%'
+		</if>
+		    and MUSIC_NAME is not null
+		order by
+		<include refid="Base_order_List" />
+		desc
+	</select>
+	
+	<!--三方支付歌曲下载  -->
+	<sql id="Base_Column_sfzfList">
+		 music_id as COPYRIGHT_ID,MUSIC_NAME，src_singer_name as SINGER_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USERNUM as USR,ALL_PRICE as PRICE,ALL_DOWNCNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				,MF_USERNUM as USR,MF_PRICE as PRICE,MF_DOWNCNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				,SF_USERNUM as USR,SF_PRICE as PRICE,SF_DOWNCNT as DOWN
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<sql id="Base_order_sfzfList">
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				ALL_DOWNCNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				MF_DOWNCNT
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				SF_DOWNCNT
+			]]>
+			</when>
+		</choose>
+	</sql>
+	<select id="selectBysfzf" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_sfzfList" />
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from prt_ydjc_quanqu3pay_dm 
+			WHERE DATE_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from prt_ydjc_quanqu3pay_mm 
+			WHERE MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="productId!=null">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and MUSIC_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+				and MUSIC_NAME is not null
+		order by
+		<include refid="Base_order_sfzfList" />
+		desc
+	</select>
+	
+	<!-- 在线听 -->
+	<select id="selectByzxt" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="listen_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from RPT_YDJC_ONLINE_DM
+			WHERE DATE_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from RPT_YDJC_ONLINE_MM
+			WHERE MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+			<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+		<if test="productId!=null and productId!=''">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and RING_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+				and MUSIC_NAME is not null
+		order by TEST_DOWN_CNT
+		 desc
+	</select>
+	<!-- 振铃业务分析 -->
+	<select id="zringSelectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		ring_id as COPYRIGHT_ID,MUSIC_NAME,src_singer_name as SINGER_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ZRING_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_ZRING_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ZClause" />
+		order by
+		<include refid="Base_order_List" />
+		desc
+	</select>
+	<!--三方支付 振铃按次 -->
+	<sql id="Base_Column_List_Ring">
+		MUSIC_ID AS COPYRIGHT_ID,
+		MUSIC_NAME AS MUSIC_NAME,
+		SRC_SINGER_NAME AS SINGER_NAME,
+		USERNUM AS USR,
+		USERNUM_HB AS USR_HB,
+		DOWNCNT AS DOWN,
+		DOWNCNT_HB AS DOWN_CNT_HB,
+		PRICE AS PRICE,
+		PRICE_HB AS PRICE_HB
+	</sql>
+	<sql id="Where_Clause_Ring">
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="copyrightId!=null and copyrightId!=''">
+				and MUSIC_ID like '%${copyrightId}%'
+			</if>
+			<if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+			</if>
+		 		and MUSIC_NAME is not null
+	</sql>
+	<select id="selectBySfzfRingCount" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select 
+			<include refid="Base_Column_List_Ring"/>
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from PRT_YDJC_ZRING3PAY_DM 
+			WHERE  DATE_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from PRT_YDJC_ZRING3PAY_MM 
+			WHERE  MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		    <include refid="Where_Clause_Ring"/>
+		order by DOWN DESC
+	</select>
+	
+	<!-- 铃音盒sql -->
+	<sql id="Base_Column_ListRingBox">
+		COPYRIGHT_ID,MUSIC_NAME,SRC_SINGER_NAME  as SINGER_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+	<sql id="Where_ClauseRingBox">
+		<if test="_parameter!=null">
+			<where>
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="copyrightId!=null and copyrightId!=''">
+					and COPYRIGHT_ID like '%${copyrightId}%'
+				</if>
+				<if test="musicName!=null and musicName!=''">
+					and MUSIC_NAME like '%${musicName}%'
+				</if>
+				and MUSIC_NAME is not null
+			</where>
+		</if>
+	</sql>
+	
+	<select id="selectByRingBoxSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<if test="dateType  == 'day'">
+		  <include refid="Base_Column_ListRingBox" />
+		  from  RPT_YDJC_RINGBOX_DM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and DATE_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+		</if>
+		
+	  <if test="dateType  == 'month'">
+		  <include refid="Base_Column_ListRingBox" />
+		  from  RPT_YDJC_RINGBOX_MM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and MONTH_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+		</if>
+		
+	</select>
+	
+	<!-- 铃音盒拆分 -->
+	
+	<select id="selectByRingBoxCFSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<if test="dateType  == 'day'">
+		  <include refid="Base_Column_ListRingBox" />
+		  from  RPT_YDJC_RINGBOX_CF_DM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and DATE_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+		</if>
+		
+	  <if test="dateType  == 'month'">
+		  <include refid="Base_Column_ListRingBox" />
+		  from  RPT_YDJC_RINGBOX_CF_MM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and MONTH_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+	  </if>
+	</select>
+	
+	<!-- 个性化彩铃歌曲分析 -->
+	
+	<sql id="Base_Column_ListRingDiy">
+		COPYRIGHT_ID,MUSIC_NAME
+		<choose>
+			<when test="jfFlag!=null and jfFlag==-1">
+			<![CDATA[
+				,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==1">
+			<![CDATA[
+				,SF_USR as USR,SF_PRICE as PRICE,SF_DOWN_CNT as DOWN
+			]]>
+			</when>
+			<when test="jfFlag!=null and jfFlag==2">
+            <![CDATA[
+				,MF_USR as USR,MF_PRICE as PRICE,MF_DOWN_CNT as DOWN
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+	<select id="selectRingdiy" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<if test="dateType  == 'day'">
+		  <include refid="Base_Column_ListRingDiy" />
+		  from  RPT_YDJC_RINGDIY_DM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and DATE_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+		</if>
+		
+	  <if test="dateType  == 'month'">
+		  <include refid="Base_Column_ListRingDiy" />
+		  from  RPT_YDJC_RINGDIY_MM
+		  <include refid="Where_ClauseRingBox" />
+		  <if test="dateId!=null and dateId!=''">
+			 and MONTH_ID=#{dateId,jdbcType=INTEGER}
+		  </if>
+		  order by
+		  <include refid="Base_order_List" />
+		  desc
+	  </if>
+	</select>
+	<!--咪咕高清特会升级包sql  -->
+	<select id="selectBySelective17" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		COPYRIGHT_ID,MUSIC_NAME,ALL_USR as USR,ALL_PRICE as PRICE,ALL_DOWN_CNT as DOWN,SRC_SINGER_NAME AS SINGER_NAME
+		  <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_dm
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_mm
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+			<if test="copyrightId!=null and copyrightId!=''">
+				and COPYRIGHT_ID like '%${copyrightId}%'
+			</if>
+		   <if test="musicName!=null and musicName!=''">
+				and MUSIC_NAME like '%${musicName}%'
+		   </if>
+		and MUSIC_NAME is not null
+		order by ALL_DOWN_CNT desc
+	</select>	
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.huoyueAnalysisMapper">
+	<!-- 曲库特会按活跃分析模块sql -->
+	<select id="selectBySelective15" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		THHY_US as USR,  THHYXZ_US ,
+		THHY_AC , BUSI_NAME,DATE_ID
+		from rpt_qkth_hy_jc_busi_d_v  	
+	    where area_code=#{provinceCode,jdbcType=INTEGER}
+		AND date_id=#{dateId,jdbcType=INTEGER} 		
+		order by
+		THHY_AC desc
+	</select>
+</mapper>

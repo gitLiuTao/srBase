@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.system.persistence.AuthGroupMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.system.domain.AuthGroup">
+		<id column="GROUP_ID" property="groupId" jdbcType="BIGINT" />
+		<result column="GROUP_NAME" property="groupName" jdbcType="VARCHAR" />
+		<result column="USER_COUNT" property="userCount" jdbcType="INTEGER" />
+		<result column="GROUP_DESC" property="groupDesc" jdbcType="VARCHAR" />
+		<result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		GROUP_ID, GROUP_NAME, USER_COUNT, GROUP_DESC, CREATOR, CREATE_TIME
+	</sql>
+	
+	<select id="selectByUserIdName" resultMap="BaseResultMap" parameterType="java.util.Map">
+		 select 
+    		g.GROUP_ID,g.GROUP_NAME,g.USER_COUNT,g.GROUP_DESC,g.CREATOR,g.CREATE_TIME
+  		 from AUTH_GROUP g
+  		 where 1=1
+  		  <if test="userId != null and userId != ''">
+ 		 and exists (
+ 	 			  select 1
+          		  from AUTH_GROUP_USER t
+         		  where g.group_id = t.group_id
+         		  and t.user_id = #{userId}
+           ) 
+           </if>
+            <if test="groupName != null and groupName !=''">
+           		 and  g.GROUP_NAME LIKE '%${groupName}%'
+           	</if>
+           order by g.GROUP_NAME
+	</select>
+ 
+	
+	<select id="selectByPrimaryKeys" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_GROUP
+		<where>
+				<if test="groupsId != null and groupsId!=''">
+					GROUP_ID like '%${groupsId}%'
+				</if>
+				<if test="groupName != null and groupName!=''">
+					and GROUP_NAME like '%${groupName}%'
+				</if>
+		</where>
+	</select>
+	<!--根据groupId查询groupName  -->
+	<select id="selectBygroupId" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_GROUP
+		where GROUP_ID =${groupsId}
+	</select>
+		<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.sunrise.system.domain.AuthGroup">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_GROUP
+		<where>
+				<if test="groupId != null and groupId!=''">
+					GROUP_ID like '%${groupId}%'
+				</if>
+				<if test="groupName != null and groupName!=''">
+					and GROUP_NAME like '%${groupName}%'
+				</if>
+		</where>
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from AUTH_GROUP
+		where GROUP_ID =#{usergroupId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteBygroupId" parameterType="java.lang.Long">
+		delete from AUTH_GROUP_user
+		where GROUP_ID =#{usergroupId,jdbcType=BIGINT}
+	</delete>
+	<delete id="deleteBygroupId2" parameterType="java.lang.Long">
+		delete from AUTH_GROUP_role
+		where GROUP_ID =#{usergroupId,jdbcType=BIGINT}
+	</delete>
+	<!--根据loginId删除  -->
+	<delete id="delGroupUser" parameterType="java.util.Map">
+		delete from AUTH_GROUP_USER
+		where user_id =#{loginId,jdbcType=VARCHAR}
+	</delete>
+	<!--根据roleId删除  -->
+	<delete id="delGroupRole" parameterType="java.util.Map">
+		delete from AUTH_GROUP_ROLE
+		where role_id =#{roleId,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.sunrise.system.domain.AuthGroup">
+		insert into AUTH_GROUP (GROUP_ID, GROUP_NAME, USER_COUNT,
+		GROUP_DESC, CREATOR, CREATE_TIME
+		)
+		values (SEQ_AUTH_GROUP.NEXTVAL, #{groupName,jdbcType=VARCHAR}, #{userCount,jdbcType=INTEGER},
+		#{groupDesc,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.sunrise.system.domain.AuthGroup">
+		insert into AUTH_GROUP
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				GROUP_ID,
+			</if>
+			<if test="groupName != null">
+				GROUP_NAME,
+			</if>
+			<if test="userCount != null">
+				USER_COUNT,
+			</if>
+			<if test="groupDesc != null">
+				GROUP_DESC,
+			</if>
+			<if test="creator != null">
+				CREATOR,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="groupId != null">
+				#{groupId,jdbcType=BIGINT},
+			</if>
+			<if test="groupName != null">
+				#{groupName,jdbcType=VARCHAR},
+			</if>
+			<if test="userCount != null">
+				#{userCount,jdbcType=INTEGER},
+			</if>
+			<if test="groupDesc != null">
+				#{groupDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+		</trim>
+	</insert>
+	<!--添加用户组角色  -->
+	<insert id="insertGroupRole" parameterType="java.util.Map">
+	insert into auth_group_role(group_id,role_id)
+	 values(${groupsId},${roleId})
+	</insert>
+	
+	<!--添加用户组用户  -->
+	<insert id="insertGroupUser" parameterType="java.util.Map">
+	 	insert into auth_group_user(group_id,seq_id,USER_ID,CREATOR,CREATE_TIME)
+	 values(${groupsId},SEQ_AUTH_GROUP_user.NEXTVAL, (select login_id from auth_user where seq_Id=${seqId}),'admin',sysdate)
+	</insert>
+	<!--更新根据id和name  -->
+	<update id="updateByIdName">
+		update AUTH_GROUP
+		set GROUP_NAME = #{groupName,jdbcType=VARCHAR}
+		where GROUP_ID = #{groupId,jdbcType=BIGINT}
+	</update>
+	<!--更新根据 groupId -->
+	<update id="updateBygroupId">
+    update (select g.user_count from AUTH_GROUP g where g.group_id = #{groupsId,jdbcType=BIGINT})
+       set user_count=
+           (select count(distinct(t.user_id)) from auth_group_user t where t.group_id =#{groupsId,jdbcType=BIGINT})
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.sunrise.system.domain.AuthGroup">
+		update AUTH_GROUP
+		<set>
+			<if test="groupName != null">
+				GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+			</if>
+			<if test="userCount != null">
+				USER_COUNT = #{userCount,jdbcType=INTEGER},
+			</if>
+			<if test="groupDesc != null">
+				GROUP_DESC = #{groupDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				CREATOR = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where GROUP_ID = #{groupId,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.sunrise.system.domain.AuthGroup">
+		update AUTH_GROUP
+		set GROUP_NAME = #{groupName,jdbcType=VARCHAR},
+		USER_COUNT = #{userCount,jdbcType=INTEGER},
+		GROUP_DESC = #{groupDesc,jdbcType=VARCHAR},
+		CREATOR = #{creator,jdbcType=VARCHAR},
+		CREATE_TIME = #{createTime,jdbcType=TIMESTAMP}
+		where GROUP_ID = #{groupId,jdbcType=BIGINT}
+	</update>
+	<select id="selectBySelective" resultMap="BaseResultMap" parameterType="java.util.Map" >
+		 select 
+    		g.GROUP_ID,g.GROUP_NAME,g.USER_COUNT,g.GROUP_DESC,g.CREATOR,g.CREATE_TIME
+  		 from AUTH_GROUP g
+ 		 where exists (
+ 	 			  select 1
+          		  from AUTH_GROUP_USER t
+         		  where g.group_id = t.group_id
+         		  <if test = "groupId != null and groupId!=''">
+         		  	and GROUP_ID = #{groupId,jdbcType=BIGINT}
+         		  </if>
+           ) 
+            <if test="groupName != null and groupName !=''">
+           		 and  GROUP_NAME LIKE %'${groupName}'%
+           	</if>
+           order by g.GROUP_NAME
+	</select>
+	<select id="selectBySelectiveUser" resultMap="BaseResultMap" parameterType="java.util.Map" >
+		 select 
+    		g.GROUP_ID,g.GROUP_NAME,g.USER_COUNT,g.GROUP_DESC,g.CREATOR,g.CREATE_TIME
+  		 from AUTH_GROUP g
+ 		 where 1=1
+ 		 	<if test = "groupId != null and groupId!=''">
+         		  and GROUP_ID = #{groupId,jdbcType=BIGINT}
+         	</if>
+            <if test="groupName != null and groupName !=''">
+           		 and  GROUP_NAME LIKE %'${groupName}'%
+           	</if>
+           order by g.GROUP_NAME
+	</select>
+	<select id="selectByPrimaryKey1" resultMap="BaseResultMap" parameterType="com.sunrise.system.domain.AuthGroup">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_GROUP
+		<where>
+				<if test="groupId != null and groupId!=''">
+					GROUP_ID =#{groupId,jdbcType=BIGINT}
+				</if>
+		</where>
+	</select>
+</mapper>

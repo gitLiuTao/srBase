@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.partner.OpenChannelsMapper">
+	
+	<!-- 查询某个产品的渠道公司按次排名，3个sql分别表示业务、增幅、降幅排名，可以根据tableId来区分不同业务，查询不同的表，3个sql有共同之处可以引用公共sql -->
+	<sql id="qopl_sql">
+			 CHANNEL_CO_NAME,
+			<choose>
+				<!-- 免费 -->
+				<when test=" jf_flag == 1 ">
+			          MF_USR AS  USR ,
+			          MF_DOWN_CNT as DOWN_CNT  ,
+			          MF_DOWN_CNT_HB AS DOWN_CNT_HB,
+			          MF_DOWN_ZZL as DOWN_ZZL 
+				</when>
+				<!-- 收费 -->
+				<when test="jf_flag == 2 ">
+					  SF_USR AS  USR ,
+			          SF_DOWN_CNT as DOWN_CNT  ,
+			          SF_DOWN_CNT_HB AS DOWN_CNT_HB,
+			          SF_DOWN_ZZL as DOWN_ZZL 
+				</when>
+				<!-- 全部 -->
+				<otherwise >
+			          ALL_USR as USR ,
+			          ALL_DOWN_CNT as DOWN_CNT  ,
+			          ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+			          ALL_DOWN_ZZL as DOWN_ZZL 
+				</otherwise>
+			</choose>
+	</sql>
+	
+	<select id="queryOneProductList"  parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+	select a.*,rownum as RANKING  from ( 
+		SELECT 
+			<choose>
+				<when test="tableId == 32 ">
+					CHANNEL_CO_NAME,
+					ALL_USR,
+					XZ_USR,
+					XZ_USR_HB,
+					XZ_USR_ZZL 
+					</when>
+				<when test="tableId == 33 ">
+							CHANNEL_CO_NAME, 
+						  THHYXZ_USR  ,<!-- 特会活跃下载用户数 -->
+						 THHY_CNT   ,<!-- 特会活跃用户下载量 -->
+						 THHY_ZZL,   <!--特会总下载环比增长量 -->
+						 THHY_CNT_HB,   <!-- 特会总下载环比增长率 -->
+						 CRTH_CNT   ,<!-- 彩铃特会下载量 -->
+						 ZRTH_CNT   , <!--  振铃特会下载量 -->
+						 QQTH_CNT   , <!--  歌曲下载特会下载量 -->
+						 ZXTTH_CNT  <!--   在线听特会下载量 -->
+		</when>
+				<otherwise><include refid="qopl_sql"/></otherwise>
+			</choose>
+		from 
+			<if test="dateType == 'day' ">
+				<choose>
+					<when test="tableId == 24 ">RPT_HZHB_RING_DEV_DM  </when>  <!-- 渠道公司纯彩铃业务排名 -->
+					<when test="tableId == 25 ">RPT_HZHB_RINGBOX_DEV_DM  </when>  <!-- 渠道公司铃音盒业务排名 -->
+					<when test="tableId == 26 ">rpt_hzhb_zring_dev_dm  </when>  <!-- 渠道公司振铃业务排名 -->
+					<when test="tableId == 27 ">rpt_hzhb_song_dev_dm  </when>  <!-- 渠道公司歌曲下载按次业务排名 -->
+					<when test="tableId == 28 ">rpt_hzhb_song_dev_dm  </when>  <!-- 渠道公司歌曲下载包月业务排名 -->
+					<when test="tableId == 29 ">rpt_hzhb_sst_dev_dm  </when>  <!-- 渠道公司随身听业务排名 -->
+					<when test="tableId == 30 ">rpt_hzhb_zsby_dev_dm  </when>  <!-- 渠道公司专属包月业务排名 -->
+					<when test="tableId == 32 ">rpt_hzhb_thkt_dev_dm  </when>  <!-- 渠道公司特会开通排名 -->
+					<when test="tableId == 33 ">rpt_hzhb_thsy_dev_dm  </when>  <!-- 渠道公司特会使用排名 -->
+				</choose>	
+				 where DATE_ID  = #{dateId} 
+			</if>
+			<if test="dateType == 'month' ">
+				<choose>
+					<when test="tableId == 24 ">RPT_HZHB_RING_DEV_mm  </when>  <!-- 渠道公司纯彩铃业务排名 -->
+					<when test="tableId == 25 ">RPT_HZHB_RINGBOX_DEV_mm  </when>  <!-- 渠道公司铃音盒业务排名 -->
+					<when test="tableId == 26 ">rpt_hzhb_zring_dev_mm  </when>  <!-- 渠道公司振铃业务排名 -->
+					<when test="tableId == 27 ">rpt_hzhb_song_dev_mm  </when>  <!-- 渠道公司歌曲下载按次业务排名 -->
+					<when test="tableId == 29 ">rpt_hzhb_sst_dev_mm  </when>  <!-- 渠道公司随身听业务排名 -->
+					<when test="tableId == 30 ">rpt_hzhb_zsby_dev_mm  </when>  <!-- 渠道公司专属包月业务排名 -->
+					<when test="tableId == 32 ">rpt_hzhb_thkt_dev_mm  </when>  <!-- 渠道公司特会开通排名 -->
+					<when test="tableId == 33 ">rpt_hzhb_thsy_dev_mm  </when>  <!-- 渠道公司特会使用排名 -->
+				</choose>	
+				 where MONTH_ID  = #{dateId} 
+			</if>
+			
+			and SFQD = 1 
+			
+			<if test="ids != null and ids != ''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<!-- 区域代码 -->
+		 	<if test="provinceCode != null and provinceCode != '' ">
+		 		and PROVINCE_CODE = #{provinceCode}
+		 	</if>
+		 	<!-- 渠道公司名称模糊查询 -->
+		 	<if test="chanCoName != null and chanCoName != '' ">
+		 		and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+		 	</if>
+		 	 
+		 	 <if test="tableId == 27 ">
+		 	 	<!-- 只有当歌曲下载的时候，才有产品ID条件 -->
+			 	<if test="productId != null and productId != '' ">
+			 		and PRODUCT_ID = #{productId}
+			 	</if>
+		 	 </if>
+		 	 
+		 	 <choose>
+				<when test="tableId == 32 ">
+					<choose>
+		 			<when test="tableCode == 2 ">
+		 			<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+		 				and XZ_USR_ZZL >= 0
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+		 			    and  XZ_USR_ZZL &lt; 0
+		 			</when>
+		 		</choose>
+		 
+		 	order by 
+		 		<choose>
+		 			<when test="tableCode == 2 ">
+		 				XZ_USR_ZZL desc
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				XZ_USR_ZZL asc
+		 			</when>
+		 			<otherwise>
+		 				XZ_USR desc
+		 			</otherwise>
+		 		</choose>
+					</when>
+				<when test="tableId == 33 ">
+							<choose>
+								<when test="tableCode == 2 ">
+									<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+									and THHY_ZZL >= 0
+								</when>
+								<when test="tableCode == 3 ">
+									<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+									and THHY_ZZL &lt; 0
+								</when>
+							</choose>
+							
+								order by
+								<choose>
+									<when test="tableCode == 2 ">
+										THHY_ZZL desc
+									</when>
+									<when test="tableCode == 3 ">
+										THHY_ZZL asc
+									</when>
+									<otherwise>
+										THHY_CNT desc
+									</otherwise>
+								</choose>
+		</when>
+					<otherwise>
+							<choose>
+									 			<when test="tableCode == 2 ">
+									 			<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+									 				<choose>
+															<!-- 免费 -->
+															<when test="jf_flag == 1 ">
+														       and   MF_DOWN_ZZL >= 0
+															</when>
+															<!-- 收费 -->
+															<when test="jf_flag == 2 ">
+														       and   SF_DOWN_ZZL  >= 0
+															</when>
+															<!-- 全部 -->
+															<otherwise >
+														       and   ALL_DOWN_ZZL >= 0 
+															</otherwise>
+													</choose>
+									 			</when>
+									 			<when test="tableCode == 3 ">
+									 				<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+									 				<choose>
+															<!-- 免费 -->
+															<when test="jf_flag == 1 ">
+														       and  MF_DOWN_ZZL &lt; 0
+															</when>
+															<!-- 收费 -->
+															<when test="jf_flag == 2 ">
+														         and SF_DOWN_ZZL  &lt; 0
+															</when>
+															<!-- 全部 -->
+															<otherwise >
+														        and  ALL_DOWN_ZZL &lt; 0 
+															</otherwise>
+													</choose>
+									 			</when>
+									 		</choose>
+									 
+									 	order by 
+									 		<choose>
+									 			<when test="tableCode == 2 ">
+									 				DOWN_ZZL desc
+									 			</when>
+									 			<when test="tableCode == 3 ">
+									 				DOWN_ZZL asc
+									 			</when>
+									 			<otherwise>
+									 				DOWN_CNT desc
+									 			</otherwise>
+									 		</choose>
+						</otherwise>
+						</choose>
+		 	 
+		 		
+		 		
+		) a  		
+			
+	</select>
+	<!-- ####################################################################-->
+	
+	
+	<!-- 当选择产品类型为全部时，业务类型、增幅、降幅排名在sql进行判断， -->
+	<select id="queryFrequencyAndMonthlyList"  parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select a.*,rownum as ranking  from ( 
+		select 
+			<include refid="qopl_sql"/>
+		<if test="dateType == 'day' ">
+			from rpt_hzhb_all_dev_dm
+			where date_id = #{dateId}
+		</if>
+		<if test="dateType == 'month' ">
+			from rpt_hzhb_all_dev_mm
+			where month_id = #{dateId}
+		</if>
+		  and data_flag = #{dataFlag}
+		  
+		<if test="ids != null and ids != ''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if>
+		  <!-- 区域代码 -->
+	 	<if test="provinceCode != null and provinceCode != '' ">
+	 		and PROVINCE_CODE = #{provinceCode}
+	 	</if>
+	 	<!-- 渠道公司名称模糊查询 -->
+	 	<if test="chanCoName != null and chanCoName != '' ">
+	 		and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+	 	</if>
+	 	
+	 		<choose>
+		 			<when test="tableCode == 2 ">
+		 			<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+		 				<choose>
+								<!-- 免费 -->
+								<when test="jf_flag == 1 ">
+							       and   MF_DOWN_ZZL >= 0
+								</when>
+								<!-- 收费 -->
+								<when test="jf_flag == 2 ">
+							       and   SF_DOWN_ZZL  >= 0
+								</when>
+								<!-- 全部 -->
+								<otherwise >
+							       and   ALL_DOWN_ZZL >= 0 
+								</otherwise>
+						</choose>
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+		 				<choose>
+								<!-- 免费 -->
+								<when test="jf_flag == 1 ">
+							       and  MF_DOWN_ZZL &lt; 0
+								</when>
+								<!-- 收费 -->
+								<when test="jf_flag == 2 ">
+							         and SF_DOWN_ZZL  &lt; 0
+								</when>
+								<!-- 全部 -->
+								<otherwise >
+							        and  ALL_DOWN_ZZL &lt; 0 
+								</otherwise>
+						</choose>
+		 			</when>
+		 		</choose>
+		 
+		 	order by 
+		 		<choose>
+		 			<when test="tableCode == 2 ">
+		 				DOWN_ZZL desc
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				DOWN_ZZL asc
+		 			</when>
+		 			<otherwise>
+		 				DOWN_CNT desc
+		 			</otherwise>
+		 		</choose>
+		) a 
+
+	</select>
+	<select id="queryVipOpenList"  parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+	     select a.*,rownum as RANKING  from ( 
+		select 
+			CHANNEL_CO_NAME,
+			ALL_USR,
+			XZ_USR,
+			XZ_USR_HB,
+			XZ_USR_ZZL
+
+		<if test="dateType == 'day' ">
+			from rpt_hzhb_thkt_dev_dm
+			where date_id = #{dateId}
+		</if>
+		<if test="dateType == 'month' ">
+			from rpt_hzhb_thkt_dev_mm
+			where month_id = #{dateId}
+		</if>
+		and SFQD = 1
+		<if test="ids != null and ids != ''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if> 
+		  <!-- 区域代码 -->
+	 	<if test="provinceCode != null and provinceCode != '' ">
+	 		and PROVINCE_CODE = #{provinceCode}
+	 	</if>
+	 	<!-- 渠道公司名称模糊查询 -->
+	 	<if test="chanCoName != null and chanCoName != '' ">
+	 		and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+	 	</if>
+	 	
+	 		<choose>
+		 			<when test="tableCode == 2 ">
+		 			<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+		 			 and   XZ_USR_ZZL >= 0
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+		 			and XZ_USR_ZZL &lt; 0
+		 			</when>
+		 		</choose>
+		 
+		 	order by 
+		 		<choose>
+		 			<when test="tableCode == 2 ">
+		 				XZ_USR_ZZL desc
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				XZ_USR_ZZL asc
+		 			</when>
+		 			<otherwise>
+		 				XZ_USR desc
+		 			</otherwise>
+		 		</choose>
+		) a 
+	</select>
+	
+	
+	<select id="queryVipUseList"  parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select a.*,rownum as RANKING  from ( 
+		select CHANNEL_CO_NAME, 
+			  THHYXZ_USR  ,<!-- 特会活跃下载用户数 -->
+			 THHY_CNT   ,<!-- 特会活跃用户下载量 -->
+			 THHY_ZZL,   <!--特会总下载环比增长量 -->
+			 THHY_CNT_HB,   <!-- 特会总下载环比增长率 -->
+			 CRTH_CNT   ,<!-- 彩铃特会下载量 -->
+			 ZRTH_CNT   , <!--  振铃特会下载量 -->
+			 QQTH_CNT   , <!--  歌曲下载特会下载量 -->
+			 ZXTTH_CNT  <!--   在线听特会下载量 -->
+			 
+		<if test="dateType == 'day' ">
+			from rpt_hzhb_thsy_dev_dm
+			where date_id = #{dateId}
+		</if>
+		<if test="dateType == 'month' ">
+			from rpt_hzhb_thsy_dev_mm
+			where month_id = #{dateId}
+		</if>
+		and SFQD = 1 
+		  <!-- 区域代码 -->
+		<if test="ids != null and ids != ''">
+			and IDS=#{ids,jdbcType=INTEGER}
+		</if>
+	 	<if test="provinceCode != null and provinceCode != '' ">
+	 		and PROVINCE_CODE = #{provinceCode}
+	 	</if>
+	 	<!-- 渠道公司名称模糊查询 -->
+	 	<if test="chanCoName != null and chanCoName != '' ">
+	 		and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+	 	</if>
+	 	
+	 		<choose>
+		 			<when test="tableCode == 2 ">
+		 			<!-- 当选择的表格是增幅排名时，业务环比量要大于等于0 -->
+		 				 and thhy_ZZL >= 0
+						 
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				<!-- 当选择的表格是降幅排名时，业务环比量要小于0 -->
+		 				and thhy_ZZL &lt; 0
+		 			</when>
+		 		</choose>
+		 
+		 	order by 
+		 		<choose>
+		 			<when test="tableCode == 2 ">
+		 				thhy_ZZL desc
+		 			</when>
+		 			<when test="tableCode == 3 ">
+		 				thhy_ZZL asc
+		 			</when>
+		 			<otherwise>
+		 				thhy_cnt desc
+		 			</otherwise>
+		 		</choose>
+		) a 
+	</select>
+	<!-- ####################################################################-->
+	
+	<!-- 下钻页面所有表格数据查询的sql -->
+	
+	<sql id="Base_Column_List">
+		<choose>
+			<when test=" jf_flag == -1">
+			<![CDATA[
+				ALL_USR as USR, ALL_USR_HB as USR_HB,
+				ALL_DOWN_CNT as DOWN_CNT,ALL_DOWN_CNT_HB as DOWN_CNT_HB,
+				ALL_PRICE as PRICE,ALL_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<when test=" jf_flag == 1">
+			<![CDATA[
+				MF_USR as USR, MF_USR_HB as USR_HB,
+				MF_DOWN_CNT as DOWN_CNT,MF_DOWN_CNT_HB as DOWN_CNT_HB,
+				MF_PRICE as PRICE,MF_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+			<when test=" jf_flag == 2">
+            <![CDATA[
+				SF_USR as USR, SF_USR_HB as USR_HB,
+				SF_DOWN_CNT as DOWN_CNT,SF_DOWN_CNT_HB as DOWN_CNT_HB,
+				SF_PRICE as PRICE,SF_PRICE_HB as PRICE_HB
+			]]>
+			</when>
+		</choose>
+	</sql>
+	
+ 
+	<sql id="where_tabledata">
+		<if test="ids != null and ids !=''">
+					and IDS=#{ids}
+		</if>
+		<if test="pageId == 205">
+			<if test="productId != null">
+				and PRODUCT_ID=#{productId}
+			</if>
+		</if>
+		<choose>
+			<when test="tableId == 2 "><!--  如果是地域分析的时候，就需要要par开头字段 -->
+				<if test="provinceCode != null and provinceCode != ''">
+					and PAR_PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+			</when>
+			<otherwise>
+				<if test="provinceCode !=null and provinceCode != ''">
+					and PROVINCE_CODE=#{provinceCode}
+				</if>
+			</otherwise>
+		</choose>	
+		
+		<if test="sfqd == 0  ">
+			and sfqd = 0
+			<if test="chanName != null and chanName != '' ">
+				and SUB_CHANNEL_NAME like '%'||#{chanName}||'%'
+			</if>
+			<if test="chanId != null and chanId != '' ">
+				and SRC_CHANNEL_ID like '%'||#{chanId}||'%'
+			</if>
+		</if>
+		<if test="sfqd == 1">
+			and sfqd = 1
+			<if test="chanCoName != null and chanCoName != '' ">
+				and channel_co_name like '%'||#{chanCoName}||'%'
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="tabledata_froms">
+		<if test="dateType == 'day'">
+			from
+			<choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_dev_dm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_dev_dm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_dev_dm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_dev_dm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_dev_dm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_dev_dm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_dev_dm</when>
+			</choose>
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from <choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_dev_mm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_dev_mm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_dev_mm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_dev_mm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_dev_mm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_dev_mm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_dev_mm</when>
+			</choose>
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+	
+	</sql>
+	
+	
+	
+	<!-- 时间分析 -->
+	<select id="queryTabledata4Time" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select 
+		<include refid="Base_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from
+			<choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_dev_dm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_dev_dm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_dev_dm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_dev_dm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_dev_dm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_dev_dm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_dev_dm</when>
+			</choose>
+			WHERE  DATE_ID BETWEEN  #{preDateId} AND  #{dateId} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from
+			<choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_dev_mm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_dev_mm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_dev_mm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_dev_mm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_dev_mm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_dev_mm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_dev_mm</when>
+			</choose>
+			WHERE  MONTH_ID BETWEEN  #{preDateId} AND  #{dateId} 
+		</if>
+		
+		<include refid="where_tabledata"/>
+		
+		order by DATE_ID desc
+	</select>
+	
+	<select id="queryTabledata4Area" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select PROVINCE_NAME, 
+		 <include refid="Base_Column_List"/>
+		<include refid="tabledata_froms"/> 
+		<include refid="where_tabledata"/>
+		order by DOWN_CNT desc  
+	</select>
+	<select id="queryTabledata4AreaVipopen" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select PROVINCE_NAME,
+			       XZ_USR,
+			       XZ_USR_ZZL,
+			       XZ_USR_HB,
+			       ALL_USR,
+			       ALL_USR_HB,
+			       BL_USR,
+			       BL_USR_HB
+		<if test="dateType == 'day'">
+			from rpt_hzhb_thkt_dev_dm
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from  rpt_hzhb_thkt_dev_mm
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+	
+		<include refid="where_tabledata"/>
+		<if test="jf_flag == 1 "> <!--  如果选择了免费，则特会返回空数据 -->
+			and 1=2 
+		</if>
+		order by ALL_USR desc  
+	</select>
+	
+	
+	<select id="queryTabledata4User" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		convert_type( 'USER_TYPE_ID',USER_TYPE_ID) as USER_TYPE,
+		<include refid="Base_Column_List" />
+		<include refid="tabledata_froms"/> 
+		<include refid="where_tabledata"/>
+		order by DOWN_CNT desc  
+		</select>
+	
+	<select id="queryTabledata4SubChannelVipopen" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		SRC_CHANNEL_ID,SUB_CHANNEL_NAME,channel_co_name as SUB_CHANNEL_CO_NAME,
+			       XZ_USR,
+			       XZ_USR_ZZL,
+			       XZ_USR_HB,
+			       ALL_USR,
+			       ALL_USR_HB,
+			       BL_USR,
+			       BL_USR_HB
+		<if test="dateType == 'day'">
+			from rpt_hzhb_thkt_dev_dm
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from  rpt_hzhb_thkt_dev_mm
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="where_tabledata"/>
+		
+		<if test="srcChannelId != null and srcChannelId != '' ">
+			and SRC_CHANNEL_ID like '%'||#{srcChannelId}||'%'
+		</if>
+		<if test="subChannelName != null and subChannelName != '' ">
+			and SUB_CHANNEL_NAME like '%'||#{subChannelName}||'%'
+		</if>
+		<if test="jf_flag == 1 "> <!--  如果选择了免费，则特会返回空数据 -->
+			and 1=2 
+		</if>
+		order by ALL_USR desc  
+	</select>
+	<select id="queryTabledata4SubChannel" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		SRC_CHANNEL_ID,SUB_CHANNEL_NAME,channel_co_name as SUB_CHANNEL_CO_NAME,
+		 <include refid="Base_Column_List"/>
+		<include refid="tabledata_froms"/> 
+		<include refid="where_tabledata"/>
+		
+		<if test="srcChannelId != null and srcChannelId != '' ">
+			and SRC_CHANNEL_ID like '%'||#{srcChannelId}||'%'
+		</if>
+		<if test="subChannelName != null and subChannelName != '' ">
+			and SUB_CHANNEL_NAME like '%'||#{subChannelName}||'%'
+		</if>
+		<if test="srcCpId != null and srcCpId != ''">
+			and SRC_CP_ID = #{srcCpId}
+		</if>
+		
+		order by DOWN_CNT desc  
+	</select>
+	<select id="queryTabledata4Cp" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		SRC_CP_ID,CP_NAME,
+		 <include refid="Base_Column_List"/>
+		<include refid="tabledata_froms"/> 
+		<include refid="where_tabledata"/>
+		
+		<if test="srcCpId != null and srcCpId != ''">
+			and SRC_CP_ID like '%'||${srcCpId}||'%'
+		</if>
+		<if test="cpName != null and cpName != ''">
+			and CP_NAME like '%'||#{cpName}||'%'
+		</if>
+		<if test="srcChannelId != null and srcChannelId != ''">
+			and  SRC_CHANNEL_ID = #{srcChannelId}
+		</if>
+		
+		order by DOWN_CNT desc  
+	</select>
+	<select id="queryTabledata4Song" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select
+		 COPYRIGHT_ID,MUSIC_NAME,SRC_SINGER_NAME,
+		 <include refid="Base_Column_List"/>
+		<include refid="tabledata_froms"/> 
+		<include refid="where_tabledata"/>
+		<if test="copyrightId != null and copyrightId != ''">
+			and COPYRIGHT_ID like '%${copyrightId}%'
+		</if>
+		<if test="musicName != null and musicName != ''">
+			and MUSIC_NAME like '%${musicName}%'
+		</if>
+		and MUSIC_NAME is not null
+		order by DOWN_CNT desc  
+	</select>
+	
+	<select id="queryTabledata4DownloadCnt" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select DOWN_CNT,usr,usr * down_cnt as DOWNLOAD_AMOUNT
+ 		<if test="dateType == 'day'">
+			from
+			<choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_down_dev_dm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_down_dev_dm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_down_dev_dm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_down_dev_dm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_down_dev_dm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_down_dev_dm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_down_dev_dm</when>
+			</choose>
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from <choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_down_dev_mm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_down_dev_mm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_down_dev_mm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_down_dev_mm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_down_dev_mm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_down_dev_mm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_down_dev_mm</when>
+			</choose>
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+ 		<if test="ids != null and ids !=''">
+					and IDS=#{ids}
+		</if>
+		<if test="pageId == 205">
+			<if test="productId != null">
+				and PRODUCT_ID=#{productId}
+			</if>
+		</if>
+		<if test="provinceCode != null and provinceCode != ''">
+			and PROVINCE_CODE=#{provinceCode}
+		</if>
+		<if test="jf_flag != null and jf_flag != ''">
+			and jf_flag = #{jf_flag}
+		</if>
+		<if test="sfqd == 0  ">
+			and sfqd = 0
+			<if test="chanId != null and chanId != '' ">
+				and SRC_CHANNEL_ID like '%'||#{chanId}||'%'
+			</if>
+		</if>
+		<if test="sfqd == 1">
+			and sfqd = 1
+			<if test="chanCoName != null and chanCoName != '' ">
+				and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+			</if>
+		</if>
+ 		order by download_amount desc
+	</select>
+	
+	
+	<select id="queryTabledata4Cost" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select PRICE,usr,usr * PRICE as TOTAL
+ 		<if test="dateType == 'day'">
+			from
+			<choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_fee_dev_dm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_fee_dev_dm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_fee_dev_dm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_fee_dev_dm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_fee_dev_dm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_fee_dev_dm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_fee_dev_dm</when>
+			</choose>
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from <choose>
+				<when test=" pageId == 202 ">rpt_hzhb_ring_fee_dev_mm</when>
+				<when test=" pageId == 203 ">rpt_hzhb_ringbox_fee_dev_mm</when>
+				<when test=" pageId == 204 ">rpt_hzhb_zring_fee_dev_mm</when>
+				<when test=" pageId == 205 ">rpt_hzhb_song_fee_dev_mm</when>
+				<when test=" pageId == 207 ">rpt_hzhb_sst_fee_dev_mm</when>
+				<when test=" pageId == 208 ">rpt_hzhb_zsby_fee_dev_mm</when>
+				<when test=" pageId == 210 ">rpt_hzhb_thsy_fee_dev_mm</when>
+			</choose>
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+		
+			and jf_flag = 2
+ 		<if test="ids != null and ids !=''">
+					and IDS=#{ids}
+		</if>
+		<if test="pageId == 205">
+			<if test="productId != null">
+				and PRODUCT_ID=#{productId}
+			</if>
+		</if>
+		<if test="provinceCode != null and provinceCode != ''">
+			and PROVINCE_CODE=#{provinceCode}
+		</if>
+		<if test="sfqd == 0  ">
+			and sfqd = 0
+			<if test="chanId != null and chanId != '' ">
+				and SRC_CHANNEL_ID like '%'||#{chanId}||'%'
+			</if>
+		</if>
+		<if test="sfqd == 1">
+			and sfqd = 1
+			<if test="chanCoName != null and chanCoName != '' ">
+				and CHANNEL_CO_NAME like '%'||#{chanCoName}||'%'
+			</if>
+		</if>
+		order by TOTAL desc
+ 		
+	</select>
+	
+	<sql id="vipuse_cols">
+		<choose>
+			<when test="dateType == 'month'">
+				month_id as DATE_ID, 
+			</when>
+			<otherwise>
+				DATE_ID as DATE_ID,
+			</otherwise>
+		</choose>
+		 	PAR_PROVINCE_CODE,	PROVINCE_CODE,	PROVINCE_NAME,	SRC_CP_ID,	CP_NAME,	SRC_CHANNEL_ID,	SUB_CHANNEL_NAME,
+		CHANNEL_CO_NAME,	MSISDN,	SFQD,	THHYXZ_USR,	THHY_CNT,	THHY_ZZL,	THHY_CNT_HB,	CRTH_CNT,	ZRTH_CNT,	QQTH_CNT,
+		ZXTTH_CNT,	CRTH_USR,	ZRTH_USR,	QQTH_USR,	ZXTTH_USR,THHYXZ_ZZL,THHYXZ_USR_HB
+	</sql>
+	
+	
+	<select id="queryTabledata4UseArea" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select 
+		<include refid="vipuse_cols"/>
+		<if test="dateType == 'day'">
+			from rpt_hzhb_thsy_dev_dm
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			from  rpt_hzhb_thsy_dev_mm
+			where month_id = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="where_tabledata"/>
+		order by THHY_CNT desc
+		
+	</select>
+	<select id="queryTabledata4UseTime" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select 
+		<include refid="vipuse_cols"/>
+		<if test="dateType == 'day'">
+			from rpt_hzhb_thsy_dev_dm
+			where DATE_ID  BETWEEN  #{preDateId} AND  #{dateId} 
+		</if>
+		<if test="dateType == 'month'">
+			from  rpt_hzhb_thsy_dev_mm
+			where month_id  BETWEEN  #{preDateId} AND  #{dateId} 
+		</if>
+		<include refid="where_tabledata"/>
+		order by DATE_ID desc
+	</select>
+<!-- 	<select id="queryTabledata4UseCp" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+	
+	</select> -->
+	<select id="queryTabledata4Active" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select 
+			<include refid="vipuse_cols"/>
+			<if test="dateType == 'day'">
+				from rpt_hzhb_thsy_dev_dm
+				where DATE_ID  =  #{dateId} 
+			</if>
+			<if test="dateType == 'month'">
+				from  rpt_hzhb_thsy_dev_mm
+				where month_id  =   #{dateId} 
+			</if>
+			<include refid="where_tabledata"/>
+			order by THHY_CNT desc
+	</select>
+	<select id="queryTabledata4UseDown" parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+		select  PROVINCE_CODE, PROVINCE_NAME, CHANNEL_CO_NAME, SRC_CHANNEL_ID, THHYXZ_USR,
+ 				THHY_CNT, CRTH_CNT, ZRTH_CNT, QQTH_CNT, ZXTTH_CNT, (THHY_CNT*THHYXZ_USR) as THHY_CNT_USR
+		<if test="dateType == 'day'">
+			from rpt_hzhb_thsy_down_dev_dm
+			where DATE_ID  = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			from  rpt_hzhb_thsy_down_dev_mm
+			where month_id  = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="where_tabledata"/>
+		order by THHY_CNT_USR desc
+		
+	</select>
+	
+	<select id="queryVipopenInitData"  parameterType="com.sunrise.base.dataEntity.IData" resultType="map">
+			select PROVINCE_NAME,
+					       XZ_USR,
+					       XZ_USR_ZZL,
+					       XZ_USR_HB,
+					       ALL_USR,
+					       ALL_USR_HB,
+					       BL_USR,
+					       BL_USR_HB
+				<if test="dateType == 'day'">
+					from rpt_hzhb_thkt_dev_dm
+					where DATE_ID = #{dateId,jdbcType=INTEGER}
+				</if>
+				<if test="dateType == 'month'">
+					from  rpt_hzhb_thkt_dev_mm
+					where month_id = #{dateId,jdbcType=INTEGER}
+				</if>
+			
+			<if test="ids != null and ids !=''">
+						and IDS=#{ids}
+			</if>
+			<if test="provinceCode !=null and provinceCode != ''">
+						and PROVINCE_CODE=#{provinceCode}
+			</if>
+			<if test="sfqd == 0  ">
+				and sfqd = 0
+				<if test="chanName != null and chanName != '' ">
+					and SUB_CHANNEL_NAME like '%'||#{chanName}||'%'
+				</if>
+				<if test="chanId != null and chanId != '' ">
+					and SRC_CHANNEL_ID like '%'||#{chanId}||'%'
+				</if>
+			</if>
+			<if test="sfqd == 1">
+				and sfqd = 1
+				<if test="chanCoName != null and chanCoName != '' ">
+					and channel_co_name like '%'||#{chanCoName}||'%'
+				</if>
+			</if>
+				<if test="jf_flag == 1 "> <!--  如果选择了免费，则特会返回空数据 -->
+					and 1=2 
+				</if>
+				order by ALL_USR desc  
+	
+	</select>
+	
+	<!-- ######################################################### -->
+
+</mapper>

@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.system.persistence.AuthMenuNodeMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.system.domain.AuthMenuNode">
+		<id column="MENU_ID" property="menuId" jdbcType="BIGINT" />
+		<result column="MENU_NAME" property="menuName" jdbcType="VARCHAR" />
+		<result column="URL_ID" property="urlId" jdbcType="BIGINT" />
+		<result column="MENU_STATE" property="menuState" jdbcType="INTEGER" />
+		<result column="PARENT_ID" property="parentId" jdbcType="BIGINT" />
+		<result column="MENU_ID_PATH" property="menuIdPath" jdbcType="VARCHAR" />
+		<result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="ORDER_NO" property="orderNo" jdbcType="INTEGER" />
+		<result column="IS_DIR" property="isDir" jdbcType="INTEGER" />
+		<result column="MY_STATUS" property="myStatus" jdbcType="INTEGER" />
+		<result column="URL_PATH" property="urlPath" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="RoleSubMenuResultMap" type="com.sunrise.system.domain.AuthMenuNode" extends="BaseResultMap">
+		<collection property="subMenus" column="{userId=USER_ID,parentId=MENU_ID}" ofType="com.sunrise.system.domain.AuthMenuNode"
+			jdbcType="BIGINT" select="selectRoleSubMenus" />
+	</resultMap>
+	<resultMap id="AllMenuResultMap" type="com.sunrise.system.domain.AuthMenuNode" extends="BaseResultMap">
+		<collection property="subMenus" column="MENU_ID" ofType="com.sunrise.system.domain.AuthMenuNode" jdbcType="BIGINT"
+			select="selectMenusByParentId" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		MENU_ID, MENU_NAME, URL_ID, MENU_STATE, PARENT_ID, MENU_ID_PATH, CREATOR, CREATE_TIME,
+		ORDER_NO, IS_DIR,
+		MY_STATUS, URL_PATH
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+		select
+		<include refid="Base_Column_List" />
+		from AUTH_MENU_NODE
+		where MENU_ID = #{menuId,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from AUTH_MENU_NODE
+		where MENU_ID =
+		#{menuId,jdbcType=BIGINT}
+	</delete>
+	<insert id="insert" parameterType="com.sunrise.system.domain.AuthMenuNode">
+		<selectKey keyProperty="menuId" resultType="java.lang.Long" order="BEFORE" statementType="PREPARED">
+			select
+			SEQ_AUTH_MENU_NODE.NEXTVAL as
+			id from
+			dual
+		</selectKey>
+		insert into AUTH_MENU_NODE (MENU_ID, MENU_NAME, URL_ID,
+		MENU_STATE, PARENT_ID,
+		MENU_ID_PATH,
+		CREATOR, CREATE_TIME,
+		ORDER_NO,
+		IS_DIR, MY_STATUS, URL_PATH
+		)
+		values (#{menuId,jdbcType=BIGINT},
+		#{menuName,jdbcType=VARCHAR},
+		#{urlId,jdbcType=BIGINT},
+		#{menuState,jdbcType=INTEGER}, #{parentId,jdbcType=BIGINT},
+		#{menuIdPath,jdbcType=VARCHAR},
+		#{creator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+		#{orderNo,jdbcType=INTEGER},
+		#{isDir,jdbcType=INTEGER},
+		#{myStatus,jdbcType=INTEGER}, #{urlPath,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.sunrise.system.domain.AuthMenuNode">
+		<selectKey keyProperty="menuId" resultType="java.lang.Long" order="BEFORE" statementType="PREPARED">
+			select
+			SEQ_AUTH_MENU_NODE.NEXTVAL as
+			id from
+			dual
+		</selectKey>
+		insert into AUTH_MENU_NODE
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="menuId != null">
+				MENU_ID,
+			</if>
+			<if test="menuName != null">
+				MENU_NAME,
+			</if>
+			<if test="urlId != null">
+				URL_ID,
+			</if>
+			<if test="menuState != null">
+				MENU_STATE,
+			</if>
+			<if test="parentId != null">
+				PARENT_ID,
+			</if>
+			<if test="menuIdPath != null">
+				MENU_ID_PATH,
+			</if>
+			<if test="creator != null">
+				CREATOR,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+			<if test="orderNo != null">
+				ORDER_NO,
+			</if>
+			<if test="isDir != null">
+				IS_DIR,
+			</if>
+			<if test="myStatus != null">
+				MY_STATUS,
+			</if>
+			<if test="urlPath != null">
+				URL_PATH,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="menuId != null">
+				#{menuId,jdbcType=BIGINT},
+			</if>
+			<if test="menuName != null">
+				#{menuName,jdbcType=VARCHAR},
+			</if>
+			<if test="urlId != null">
+				#{urlId,jdbcType=BIGINT},
+			</if>
+			<if test="menuState != null">
+				#{menuState,jdbcType=INTEGER},
+			</if>
+			<if test="parentId != null">
+				#{parentId,jdbcType=BIGINT},
+			</if>
+			<if test="menuIdPath != null">
+				#{menuIdPath,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				#{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orderNo != null">
+				#{orderNo,jdbcType=INTEGER},
+			</if>
+			<if test="isDir != null">
+				#{isDir,jdbcType=INTEGER},
+			</if>
+			<if test="myStatus != null">
+				#{myStatus,jdbcType=INTEGER},
+			</if>
+			<if test="urlPath != null">
+				#{urlPath,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.sunrise.system.domain.AuthMenuNode">
+		update AUTH_MENU_NODE
+		<set>
+			<if test="menuName != null">
+				MENU_NAME = #{menuName,jdbcType=VARCHAR},
+			</if>
+			<if test="urlId != null">
+				URL_ID = #{urlId,jdbcType=BIGINT},
+			</if>
+			<if test="menuState != null">
+				MENU_STATE = #{menuState,jdbcType=INTEGER},
+			</if>
+			<if test="parentId != null">
+				PARENT_ID = #{parentId,jdbcType=BIGINT},
+			</if>
+			<if test="menuIdPath != null">
+				MENU_ID_PATH = #{menuIdPath,jdbcType=VARCHAR},
+			</if>
+			<if test="creator != null">
+				CREATOR = #{creator,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="orderNo != null">
+				ORDER_NO = #{orderNo,jdbcType=INTEGER},
+			</if>
+			<if test="isDir != null">
+				IS_DIR = #{isDir,jdbcType=INTEGER},
+			</if>
+			<if test="myStatus != null">
+				MY_STATUS = #{myStatus,jdbcType=INTEGER},
+			</if>
+			<if test="urlPath != null">
+				URL_PATH = #{urlPath,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where MENU_ID = #{menuId,jdbcType=BIGINT}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.sunrise.system.domain.AuthMenuNode">
+		update AUTH_MENU_NODE
+		set MENU_NAME = #{menuName,jdbcType=VARCHAR},
+		URL_ID = #{urlId,jdbcType=BIGINT},
+		MENU_STATE = #{menuState,jdbcType=INTEGER},
+		PARENT_ID = #{parentId,jdbcType=BIGINT},
+		MENU_ID_PATH = #{menuIdPath,jdbcType=VARCHAR},
+		CREATOR = #{creator,jdbcType=VARCHAR},
+		CREATE_TIME =
+		#{createTime,jdbcType=TIMESTAMP},
+		ORDER_NO = #{orderNo,jdbcType=INTEGER},
+		IS_DIR = #{isDir,jdbcType=INTEGER},
+		MY_STATUS =
+		#{myStatus,jdbcType=INTEGER},
+		URL_PATH = #{urlPath,jdbcType=VARCHAR}
+		where MENU_ID = #{menuId,jdbcType=BIGINT}
+	</update>
+	<select id="selectRoleSubMenus" parameterType="java.util.HashMap" resultMap="RoleSubMenuResultMap">
+		select
+		DISTINCT(mn.MENU_ID) as
+		D_MENU_ID,mn.*,ru.USER_ID as USER_ID from AUTH_MENU_NODE mn
+		inner join AUTH_ROLE_MENU rm on rm.MENU_ID=mn.MENU_ID
+		inner
+		join AUTH_ROLE_USER ru
+		on rm.ROLE_ID=ru.ROLE_ID inner join AUTH_ROLE r ON r.ROLE_ID = ru.ROLE_ID
+		where
+		ru.USER_ID=#{userId,jdbcType=VARCHAR} and
+		mn.PARENT_ID=#{parentId,jdbcType=BIGINT}
+		and
+		mn.MENU_STATE=1 and
+		r.MY_STATUS=1
+		order
+		by
+		mn.ORDER_NO
+	</select>
+	<select id="selectMenusByParentId" parameterType="java.lang.Long" resultMap="AllMenuResultMap">
+		select
+		mn.* from AUTH_MENU_NODE mn
+		where
+		mn.PARENT_ID=#{parentId,jdbcType=BIGINT}
+		and
+		mn.MENU_STATE=1 order
+		by
+		mn.ORDER_NO
+	</select>
+		<select id="selectMenusByRoleId" parameterType="java.lang.String" resultMap="AllMenuResultMap">
+		select b.*
+        from auth_menu_node b
+        where b.menu_id in
+       (select a.menu_id from auth_role_menu a where a.role_id = #{role_id})
+
+	</select>
+	<select id="selectMaxOrderNoByParentId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+		select max(ORDER_NO) as
+		ORDER_NO from
+		AUTH_MENU_NODE where PARENT_ID=#{parentId,jdbcType=BIGINT}
+	</select>
+	<delete id="deleteByPrimaryKeys" parameterType="java.util.HashMap">
+		delete from AUTH_MENU_NODE where MENU_ID in
+		<foreach collection="menuIds" item="id" open="(" separator="," close=")">
+			#{id,jdbcType=BIGINT}
+		</foreach>
+	</delete>
+	<select id="selectChildIdsByMenuId" parameterType="java.lang.Long" resultType="java.lang.Long">
+       <![CDATA[
+		select MENU_ID
+		from AUTH_MENU_NODE where MENU_ID<>#{menuId,jdbcType=BIGINT}
+		start with MENU_ID=#{menuId,jdbcType=BIGINT}
+		connect by prior MENU_ID=PARENT_ID
+	    ]]>
+	</select>
+</mapper>

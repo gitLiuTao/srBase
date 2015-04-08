@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<context id="oauth2" targetRuntime="MyBatis3">
+		<!-- <plugin -->
+		<commentGenerator>
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+
+		<jdbcConnection driverClass="${jdbc.scjdauth.driverClassName}" connectionURL="${jdbc.scjddm.url}"
+			userId="${jdbc.scjddm.username}" password="${jdbc.scjddm.password}" />
+		<javaTypeResolver>
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+		<javaModelGenerator targetPackage="com.sunrise.scjd.domain" targetProject="src\main\java">
+			<property name="enableSubPackages" value="false" />
+			<property name="trimStrings" value="true" />
+		</javaModelGenerator>
+		<sqlMapGenerator targetPackage="com.sunrise.scjd.persistence" targetProject="src\main\resources">
+			<property name="enableSubPackages" value="false" />
+		</sqlMapGenerator>
+		<javaClientGenerator targetPackage="com.sunrise.scjd.persistence" targetProject="src\main\java"
+			type="XMLMAPPER">
+			<property name="enableSubPackages" value="false" />
+		</javaClientGenerator>
+<!-- 		<table tableName="AUTH_USER" domainObjectName="AuthUser" enableCountByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" enableDeleteByPrimaryKey="true" -->
+<!-- 			enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="SEQ_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="SEX" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="USER_STATE" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="ORG_TYPE" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="GROUP_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_ROLE_USER" domainObjectName="AuthRoleUser" enableCountByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" -->
+<!-- 			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="SEQ_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="USER_ID" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="CREATOR" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="CREATE_TIME" javaType="java.util.Date" jdbcType="TIMESTAMP" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_ROLE" domainObjectName="AuthRole" enableCountByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" enableDeleteByPrimaryKey="true" -->
+<!-- 			enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="SEQ_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ROLE_NAME" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="ROLE_DESC" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="CREATOR" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="CREATE_TIME" javaType="java.util.Date" jdbcType="TIMESTAMP" /> -->
+<!-- 			<columnOverride column="IS_LOWER_USE" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="MY_STATUS" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_ROLE_MENU" domainObjectName="AuthRoleMenu" enableCountByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" -->
+<!-- 			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="SEQ_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="MENU_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="CREATOR" javaType="java.lang.String" jdbcType="VARCHAR" /> -->
+<!-- 			<columnOverride column="CREATE_TIME" javaType="java.util.Date" jdbcType="TIMESTAMP" /> -->
+<!-- 			<columnOverride column="USE_FLAG" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_ORG" domainObjectName="AuthOrg" enableCountByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" enableDeleteByPrimaryKey="true" -->
+<!-- 			enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="ORG_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="PARENT_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="BIG_AREA" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ORDER_NO" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_BIG_AREA" domainObjectName="AuthBigArea" enableCountByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" enableDeleteByPrimaryKey="true" -->
+<!-- 			enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="AREA_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_MENU_URL" domainObjectName="AuthMenuUrl" enableCountByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" -->
+<!-- 			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="URL_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="TYPE_ID" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="MY_STATE" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_MENU_NODE" domainObjectName="AuthMenuNode" enableCountByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" -->
+<!-- 			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="MENU_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="URL_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="MENU_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="MENU_STATE" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="PARENT_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ORDER_NO" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="IS_DIR" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 			<columnOverride column="MY_STATUS" javaType="java.lang.Integer" jdbcType="INTEGER" /> -->
+<!-- 		</table> -->
+<!-- 		<table tableName="AUTH_GROUP_ROLE" domainObjectName="AuthGroupRole" enableCountByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat" -->
+<!-- 			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true"> -->
+<!-- 			<columnOverride column="GROUP_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 			<columnOverride column="ROLE_ID" javaType="java.lang.Long" jdbcType="BIGINT" /> -->
+<!-- 		</table> -->
+		<table tableName="DIM_PAGE_DATA_MAP" domainObjectName="DimPageDataMap" enableCountByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false" enableUpdateByExample="false" modelType="flat"
+			enableDeleteByPrimaryKey="true" enableInsert="true" enableSelectByPrimaryKey="true" enableUpdateByPrimaryKey="true">
+			<columnOverride column="MODEL_ID" javaType="java.lang.Integer" jdbcType="INTEGER" />
+			<columnOverride column="PAGEID" javaType="java.lang.Integer" jdbcType="INTEGER" />
+			<columnOverride column="TABLEID" javaType="java.lang.Integer" jdbcType="INTEGER" />
+			<columnOverride column="IDS" javaType="java.lang.Integer" jdbcType="INTEGER" />
+			<columnOverride column="UPDATE_DATE_DAY" javaType="java.lang.Integer" jdbcType="INTEGER" />
+			<columnOverride column="UPDATE_DATE_MON" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		</table>
+	</context>
+</generatorConfiguration>

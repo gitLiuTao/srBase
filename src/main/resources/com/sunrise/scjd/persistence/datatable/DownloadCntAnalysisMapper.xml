@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.DownloadCntAnalysisMapper">
+	<sql id="Base_Column_List">
+		down_cnt DOWNLOADCNT, 			<!-- 费用数 -->
+		usr USERCNT,					<!-- 用户数 -->
+		down_cnt * usr DOWNLOADAMOUNT	<!-- 下载量 -->
+	</sql>
+	
+	<!-- 渠道专属包月sql -->
+	<sql id="Base_Column_List_channelByMonth">
+		down_cnt DOWNLOADCNT, 	            <!--下载数  -->
+		usr USERCNT,                        <!--使用用户数  -->
+		down_cnt*usr AS DOWNLOADAMOUNT      <!--总下载量  -->
+	</sql>
+	<!-- 振铃业务分析 -->
+	<sql id="ZBase_Column_List">
+		mf_down_cnt DOWNLOADCNT, 			<!-- 费用数 -->
+		mf_usr USERCNT,					<!-- 用户数 -->
+		mf_down_cnt * mf_usr DOWNLOADAMOUNT	<!-- 下载量 -->
+	</sql>
+	<!-- 振铃业务分析 -->
+	<sql id="Where_ZClause">
+		<if test="_parameter!=null">
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="jfFlag!=null and jfFlag!=''">
+				and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+			</if>
+		</if>
+	</sql>
+	<!-- 彩铃业务分析 -->
+	<sql id="Where_Ring_Clause">
+		<if test="_parameter!=null">
+		  <where>
+	    	<if test="dateId!=null and dateId!=''">
+					and DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="jfFlag!=null and jfFlag!=''">
+				and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+			</if>
+		  </where>
+		</if>
+	</sql>
+	
+	<!-- 渠道专属包月条件 -->
+	<sql id="Where_Clause_channelByMonth">
+		<if test="_parameter!=null">
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="srcMusicId!=null and srcMusicId!=''">
+				and SRC_MUSIC_ID like '%${srcMusicId}%'
+			</if>
+			<if test="srcMusicId ==null or srcMusicId ==''">
+					and SRC_MUSIC_ID = -1
+				</if>
+			<if test="srcMusicName!=null and srcMusicName!=''">
+				and SRC_MUSIC_NAME like '%${srcMusicName}%'
+			</if>
+		</if>
+	</sql>
+	<!-- 歌曲下载模块sql -->
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+          <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_SONG_DOWNLOADS_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_SONG_DOWNLOADS_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+				<if test="productId!=null">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="jfFlag!=null and jfFlag!=''">
+					and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+				</if>
+		order by (down_cnt * usr) desc
+	</select>
+	<!-- 咪咕高清模块sql -->
+		<select id="selectBySelective12" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+          <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_DOWNLOADS_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_DOWNLOADS_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>			
+			<if test="productId!=null ">
+				and data_sf_flag=#{productId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by (down_cnt * usr) desc
+	</select>
+	<!--彩铃sql  -->
+	<select id="selectBySelectiveRing" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		down_cnt DOWNLOADCNT, 			<!-- 费用数 -->
+		usr USERCNT,					<!-- 用户数 -->
+		down_cnt * usr DOWNLOADAMOUNT	<!-- 下载量 -->
+			<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RING_DOWNLOADS_DM
+			where DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RING_DOWNLOADS_MM
+			where MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+			<if test="jfFlag!=null and jfFlag!=''">
+				and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+			</if>
+		order by (DOWN_CNT * USR) desc
+	</select>
+	<!-- 渠道专属包月sql -->
+	<select id="selectBySelective_channelByMonth" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List_channelByMonth" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_QDZS_DOWNLOADS_DM
+			WHERE  DATE_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_QDZS_DOWNLOADS_MM
+			WHERE  MONTH_ID =#{dateId,jdbcType=INTEGER} 
+		</if>
+		<include refid="Where_Clause_channelByMonth" />
+		<!-- 按总下载量降序排 -->
+		order by (down_cnt * usr) desc
+	</select>
+
+	<!--三方支付歌曲下载  -->
+	<sql id="Base_Column_sfzfList">
+		downcnt as DOWNLOADCNT, 				<!-- 费用数 -->
+		usernum as USERCNT,					<!-- 用户数 -->
+		alldowncnt as DOWNLOADAMOUNT				<!-- 下载量 -->
+	</sql>
+	<select id="selectBysfzf" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_sfzfList" />
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from prt_ydjc_quanqu3pay_down_dm 
+			WHERE DATE_ID   =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from prt_ydjc_quanqu3pay_down_mm 
+			WHERE MONTH_ID  = #{dateId,jdbcType=INTEGER} 
+		</if> 
+				<if test="productId!=null">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				 <if test="jfFlag!=null and jfFlag!=''">
+					and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+				</if> 
+		order by DOWNLOADAMOUNT desc
+	</select>
+	<!-- 曲库特会下载模块sql -->
+	<select id="selectBySelective15" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		  THHYXZ_US,
+		THHY_AC,DOWNLOADS
+		 from mon_dm.rpt_qkth_hy_jc_downloads_d 		 	
+		<where>	
+	    busi_flag=#{productId,jdbcType=INTEGER}
+		AND area_code=#{provinceCode,jdbcType=INTEGER}		
+		AND date_id=#{dateId,jdbcType=INTEGER} 		
+		</where>
+		order by
+		THHY_AC desc
+	</select>
+		<!-- 在线听下载分析 -->
+	<select id="selectByzxt" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		DOWN_CNT DOWNLOADCNT, 			<!-- 下载次数 -->
+		DOWN_USR USERCNT,					<!-- 试听用户数 -->
+		DOWN_CNT * DOWN_USR DOWNLOADAMOUNT	<!-- 试听量 -->
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ONLINE_DOWNLOADS_DM
+			WHERE  DATE_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_ONLINE_DOWNLOADS_MM
+			WHERE  MONTH_ID =#{dateId,jdbcType=INTEGER} 
+		</if>
+				 
+					and DOWN_FLAG=#{downFlag,jdbcType=INTEGER}
+				
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+		order by (DOWN_CNT * DOWN_USR) desc
+	</select>
+	<!-- 振铃业务分析 -->
+	<select id="zringSelectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="ZBase_Column_List" />
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ZRING_DOWNLOADS_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_ZRING_DOWNLOADS_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ZClause" />
+		order by (mf_down_cnt * mf_usr) desc
+	</select>
+	<!--三方支付 振铃按次 -->
+	<sql id="Base_Column_List_Ring">
+		DOWNCNT AS DOWNLOADCNT,
+		USERNUM AS USERCNT,
+		ALLDOWNCNT AS DOWNLOADAMOUNT
+	</sql>
+	
+	<select id="selectBySfzfRingCount" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select 
+			<include refid="Base_Column_List_Ring"/>
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from PRT_YDJC_ZRING3PAY_DOWN_DM 
+			WHERE  DATE_ID =  #{dateId,jdbcType=INTEGER}  
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from PRT_YDJC_ZRING3PAY_DOWN_MM 
+			WHERE  MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		order by DOWNLOADAMOUNT DESC
+	</select>
+	<!-- 铃音盒 -->
+	
+	<sql id="Base_Column_ListRingBox">
+		DOWN_CNT DOWNLOADCNT, 			<!-- 下载次数 -->
+		USR USERCNT,					<!-- 用户数 -->
+		DOWN_CNT * USR DOWNLOADAMOUNT	<!-- 下载量 -->
+	</sql>
+	
+	<select id="selectByRingBoxSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_ListRingBox" />
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from RPT_YDJC_RINGBOX_DOWNLOADS_DM 
+			WHERE  DATE_ID =  #{dateId,jdbcType=INTEGER}  
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from RPT_YDJC_RINGBOX_DOWNLOADS_MM 
+			WHERE  MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+				<if test="productId!=null">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="jfFlag!=null and jfFlag!=''">
+					and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+				</if>
+		order by (DOWN_CNT * USR) desc
+	</select>
+	
+	<!-- 铃音盒拆分 -->
+	
+	<select id="selectByRingBoxCFSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_ListRingBox" />
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from RPT_YDJC_RINGBOX_CF_DOWN_DM 
+			WHERE  DATE_ID =  #{dateId,jdbcType=INTEGER}  
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from RPT_YDJC_RINGBOX_CF_DOWN_MM 
+			WHERE  MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="productId!=null">
+			and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+		</if>
+		<if test="provinceCode!=null and provinceCode!=''">
+			and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+		</if>
+		<if test="jfFlag!=null and jfFlag!=''">
+			and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+		</if>
+		order by (DOWN_CNT * USR) desc
+	</select>
+	
+	<!-- 个性化彩铃下载量分析 -->
+	<select id="selectRingdiy" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		down_cnt DOWNLOADCNT, 			<!-- 费用数 -->
+		usr USERCNT,					<!-- 用户数 -->
+		down_cnt * usr DOWNLOADAMOUNT	<!-- 下载量 -->
+		<if test="dateType == 'day'">
+			,DATE_ID AS DATE_ID
+			from RPT_YDJC_RINGDIY_DOWNLOADS_DM 
+			WHERE  DATE_ID =  #{dateId,jdbcType=INTEGER}  
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID AS DATE_ID
+			from RPT_YDJC_RINGDIY_DOWNLOADS_MM 
+			WHERE  MONTH_ID =  #{dateId,jdbcType=INTEGER} 
+		</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="jfFlag!=null and jfFlag!=''">
+					and JF_FLAG=#{jfFlag,jdbcType=INTEGER}
+				</if>
+		order by (down_cnt * usr) desc
+	</select>
+	<!-- 咪咕高清升级包sql -->
+		<select id="selectBySelective17" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		<include refid="Base_Column_List" />
+          <if test="dateType  == 'day'">
+				,DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_UP_DWLOAD_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_UP_DWLOAD_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>			
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by (down_cnt * usr) desc
+	</select>
+</mapper>

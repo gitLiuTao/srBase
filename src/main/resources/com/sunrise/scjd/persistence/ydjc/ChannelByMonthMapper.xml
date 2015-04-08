@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.ChannelByMonthMapper">
+	<sql id="Base_Column_List">
+			<![CDATA[
+				DOWN_USR as DOWN_USR,
+				DOWN_USR_HB as DOWN_USR_HB,
+				
+				USED_USR as USED_USR, 
+				USED_USR_HB as USED_USR_HB,
+				
+				DOWN_CNT as DOWN_CNT,
+				DOWN_CNT_HB as DOWN_CNT_HB,
+				
+				ALL_PRICE as ALL_PRICE,
+				ALL_PRICE_HB as ALL_PRICE_HB,
+			]]>
+	</sql>
+	<select id="queryTimeAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="java.util.HashMap">
+		select 
+		<include refid="Base_Column_List" />
+			<if test="dateType  == 'day'">
+				DATE_ID as DATE_ID
+				from RPT_YDJC_QDZS_DM  
+				where DATE_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				MONTH_ID as DATE_ID
+				from RPT_YDJC_QDZS_MM
+				where MONTH_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+ 			<if test="srcMusicId!=null and srcMusicId!=''">
+				and SRC_MUSIC_ID like '%${srcMusicId}%'
+			</if>
+			<if test="srcMusicId ==null or srcMusicId ==''">
+				and SRC_MUSIC_ID = -1
+			</if>
+			<if test="srcMusicName!=null and srcMusicName!=''">
+				and SRC_MUSIC_NAME like '%${srcMusicName}%'
+			</if>
+		order by DATE_ID desc
+	</select>
+</mapper>

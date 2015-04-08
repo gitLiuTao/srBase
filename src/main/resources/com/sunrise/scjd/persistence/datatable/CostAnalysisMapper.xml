@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.datatable.CostAnalysisMapper">
+	<sql id="Where_Clause">
+				<choose>
+					<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+					</when>
+					<otherwise>
+					<!-- 为了在没有收费条件的时候不查询数据 -->
+					and JF_FLAG = -99
+					</otherwise>
+				</choose>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+	</sql>
+	<!-- 渠道专属包月条件 -->
+	<sql id="Where_Clause_channelByMonth">
+		<if test="_parameter!=null">
+				<if test="ids!=null and ids!=''">
+					and IDS=#{ids,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+				<if test="srcMusicId!=null and srcMusicId!=''">
+					and SRC_MUSIC_ID like '%${srcMusicId}%'
+				</if>
+				<if test="srcMusicId ==null or srcMusicId ==''">
+					and SRC_MUSIC_ID = -1
+				</if>
+				<if test="srcMusicName!=null and srcMusicName!=''">
+					and SRC_MUSIC_NAME like '%${srcMusicName}%'
+				</if>
+		</if>
+	</sql>
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		SF_PRICE,SF_USR,SF_PRICE*SF_USR AS TOTAL
+		 <if test="dateType  == 'day'">
+			,DATE_ID as DATE_ID
+				from RPT_YDJC_SONG_FEE_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_SONG_FEE_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+		<include refid="Where_Clause" />
+		order by TOTAL desc
+	</select>
+	<!-- 咪咕高清特会模块sql -->
+		<select id="selectBySelective12" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		 PRICE as SF_PRICE,USR AS SF_USR,PRICE*USR AS TOTAL
+		 <if test="dateType  == 'day'">
+			,DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_FEE_DM
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_FEE_MM
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="productId != null  ">
+				and data_sf_flag=#{productId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by TOTAL desc
+	</select>
+	
+	<!-- 渠道专属包月模块sql -->
+	<select id="selectBySelective_channelByMonth" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		ALL_PRICE,USR,ALL_PRICE*USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_QDZS_FEE_DM
+			WHERE  DATE_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_QDZS_FEE_MM
+			WHERE  MONTH_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<include refid="Where_Clause_channelByMonth" />
+		<!-- 按总费用降序排 -->
+		order by ALL_PRICE*USR desc
+	</select>
+	
+	<!-- 彩铃sql -->
+	<select id="selectBySelective_ring" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PRICE as SF_PRICE,USR as SF_USR,PRICE*USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RING_FEE_DM
+			WHERE  DATE_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_RING_FEE_MM
+			WHERE  MONTH_ID = #{dateId,jdbcType=INTEGER} 
+		</if>
+				<choose>
+					<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+					</when>
+					<otherwise>
+					<!-- 为了在没有收费条件的时候不查询数据 -->
+					and JF_FLAG = -99
+					</otherwise>
+				</choose>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+		order by SF_PRICE*SF_USR desc
+	</select>
+ <!--三方支付歌曲下载  -->
+	<select id="selectBysfzf" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		price as SF_PRICE,usernum as SF_USR,allprice AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from prt_ydjc_quanqu3pay_fee_dm 
+			WHERE DATE_ID  = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from prt_ydjc_quanqu3pay_fee_mm 
+			WHERE MONTH_ID  =  #{dateId,jdbcType=INTEGER} 
+		</if> 
+				<choose>
+					<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+					</when>
+					<otherwise>
+					<!-- 为了在没有收费条件的时候不查询数据 -->
+					and JF_FLAG = -99
+					</otherwise>
+				</choose>
+				<if test="productId!=null ">
+					and PRODUCT_ID=#{productId,jdbcType=INTEGER}
+				</if>
+ 	 order by TOTAL desc
+	</select>
+	<!-- 在线听费用分析 -->
+	<select id="selectByzxt" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		all_price,TEST_USR,all_price*TEST_USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ONLINE_FEE_DM
+			WHERE DATE_ID  = #{dateId,jdbcType=INTEGER} 
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as date_id
+			from RPT_YDJC_ONLINE_FEE_MM 
+			WHERE MONTH_ID  =  #{dateId,jdbcType=INTEGER} 
+		</if> 
+		<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+		order by all_price*TEST_USR desc
+	</select>
+	
+	<!-- 个性化彩铃费用分析 -->
+	<select id="selectRingdiy" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PRICE AS SF_PRICE,USR AS SF_USR,PRICE*USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGDIY_FEE_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_RINGDIY_FEE_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_Clause" />
+		order by PRICE*USR desc
+	</select>
+	<!-- 振铃业务分析 -->
+	<sql id="Where_ZClause">
+				<choose>
+					<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+					</when>
+					<otherwise>
+					<!-- 为了在没有收费条件的时候不查询数据 -->
+					and JF_FLAG = -99
+					</otherwise>
+				</choose>			
+				<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+	</sql>
+	<!-- 振铃业务分析 -->
+	<select id="zringSelectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		SF_PRICE,SF_USR,SF_PRICE*SF_USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_ZRING_FEE_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_ZRING_FEE_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ZClause" />
+		order by SF_PRICE*SF_USR desc
+	</select>
+	<!-- 三方支付振铃按次-->
+	<select id="selectBySfzfRingCount" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+	     select
+		PRICE AS SF_PRICE,USERNUM AS SF_USR,ALLPRICE AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from PRT_YDJC_ZRING3PAY_FEE_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from PRT_YDJC_ZRING3PAY_FEE_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		order by ALLPRICE desc
+	</select>
+	
+	<!-- 铃音盒sql -->
+	
+	<sql id="Where_ClauseRingBox">
+				<choose>
+					<when test="jfFlag == -1 or jfFlag == 2">
+					and JF_FLAG = 2
+					</when>
+					<otherwise>
+					<!-- 为了在没有收费条件的时候不查询数据 -->
+					and JF_FLAG = -99
+					</otherwise>
+				</choose>
+				<if test="provinceCode!=null and provinceCode!=''">
+					and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+				</if>
+	</sql>
+	
+	<select id="selectByRingBoxSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PRICE as SF_PRICE,
+		USR as SF_USR,
+		PRICE*USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGBOX_FEE_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_RINGBOX_FEE_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ClauseRingBox" />
+		order by PRICE*USR desc
+	</select>
+	
+	<!-- 铃音盒拆分后 -->
+		<select id="selectByRingBoxCFSelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		PRICE as SF_PRICE,
+		USR as SF_USR,
+		PRICE*USR AS TOTAL
+		<if test="dateType == 'day'">
+			,DATE_ID
+			from RPT_YDJC_RINGBOX_CF_FEE_DM
+			WHERE DATE_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<if test="dateType == 'month'">
+			,MONTH_ID as DATE_ID
+			from RPT_YDJC_RINGBOX_CF_FEE_MM
+			WHERE MONTH_ID = #{dateId,jdbcType=INTEGER}
+		</if>
+		<include refid="Where_ClauseRingBox" />
+		order by PRICE*USR desc
+	</select>
+	<!-- 咪咕高清特会升级包模块sql -->
+		<select id="selectBySelective17" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.util.HashMap">
+		select
+		 PRICE as SF_PRICE,USR AS SF_USR,PRICE*USR AS TOTAL
+		 <if test="dateType  == 'day'">
+			,DATE_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_fee_dm
+				where DATE_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				,MONTH_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_fee_mm
+				where MONTH_ID=#{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by TOTAL desc
+	</select>
+	
+</mapper>

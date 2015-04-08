@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sunrise.scjd.persistence.DataParamMapper">
+	<resultMap id="BaseResultMap" type="com.sunrise.scjd.domain.DataParam">
+		<result column="MODEL_ID" jdbcType="INTEGER" property="modelId" />
+		<result column="PAGEID" jdbcType="INTEGER" property="pageId" />
+		<result column="TABLEID" jdbcType="INTEGER" property="tableId" />
+		<result column="IDS" jdbcType="INTEGER" property="ids" />
+		<result column="UPDATE_DATE_DAY" jdbcType="INTEGER" property="updateDateDay" />
+		<result column="UPDATE_DATE_MON" jdbcType="INTEGER" property="updateDateMon" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		MODEL_ID, PAGEID, TABLEID,IDS,UPDATE_DATE_DAY,UPDATE_DATE_MON
+	</sql>
+	<sql id="Where_Clause">
+		<if test="_parameter!=null">
+			<where>
+				<if test="pageId!=null and pageId!=''">
+					and PAGEID=#{pageId,jdbcType=INTEGER}
+				</if>
+				<if test="tableId!=null and tableId!=''">
+					and TABLEID=#{tableId,jdbcType=INTEGER}
+				</if>
+				<if test="modelId!=null and modelId!=''">
+					and MODEL_ID=#{modelId,jdbcType=INTEGER}
+				</if>
+			</where>
+		</if>
+	</sql>
+	<select id="selectBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from DIM_PAGE_DATA_MAP
+		<include refid="Where_Clause" />
+	</select>
+	<select id="selectIDSBySelective" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.lang.Integer">
+		select
+		IDS
+		from DIM_PAGE_DATA_MAP
+		<include refid="Where_Clause" />
+	</select>
+	
+	<select id="selectIDS" parameterType="com.sunrise.base.dataEntity.Data" resultType="java.lang.Integer">
+		select
+		IDS
+		from DIM_PAGE_DATA_MAP
+		<include refid="Where_Clause" />
+	</select>
+	
+	<select id="selectLastUpdate" resultType="java.util.HashMap">
+		select max(UPDATE_DATE_DAY) as UPDATE_DATE_DAY , max(UPDATE_DATE_MON) as UPDATE_DATE_MON
+		from DIM_PAGE_DATA_MAP
+		where
+		PAGEID=#{pageId,jdbcType=INTEGER} and MODEL_ID=#{modelId,jdbcType=INTEGER}  
+	</select>
+	<!-- 查询配置表时间sql应用在曲库特会模块 -->
+	<select id="queryDateAnalysis" parameterType="com.sunrise.scjd.domain.DataParam" resultType="java.lang.Integer">
+		select date_id from rpt_th_update_day
+		where 1=1
+		<if test="dateId!=null and dateId!=''">
+		and month=#{dateId,jdbcType=INTEGER}
+		</if>		
+	</select>
+</mapper>

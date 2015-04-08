@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sunrise.scjd.persistence.ydjc.MiguBehaviorMapper">
+ <!--高清特会按时间分析sql -->	
+	<select id="queryTimeAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="java.util.HashMap">
+		select
+		        ALL_USR as ALL_USR, 
+				ALL_USR_HB as ALL_USR_HB,
+				ALL_DOWN_CNT as ALL_DOWN_CNT,
+				ALL_DOWN_CNT_HB as ALL_DOWN_CNT_HB,
+				ALL_PRICE as ALL_PRICE,
+				ALL_PRICE_HB as ALL_PRICE_HB,
+		
+			<if test="dateType  == 'day'">
+				DATE_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_DM
+				where DATE_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				MONTH_ID as DATE_ID
+				from RPT_YDJC_TOPVIP_MM
+				where MONTH_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="productId!=null ">
+				and data_sf_tag=#{productId,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if>
+ 
+		order by DATE_ID desc
+	</select>
+<!--高清特会升级包按时间分析sql -->	
+<select id="queryUpgradeTimeAnalysis" parameterType="com.sunrise.base.dataEntity.IData" resultType="java.util.HashMap">
+		select
+		        ALL_USR as ALL_USR, 
+				ALL_USR_HB as ALL_USR_HB,
+				ALL_DOWN_CNT as ALL_DOWN_CNT,
+				ALL_DOWN_CNT_HB as ALL_DOWN_CNT_HB,
+				ALL_PRICE as ALL_PRICE,
+				ALL_PRICE_HB as ALL_PRICE_HB,
+		
+			<if test="dateType  == 'day'">
+				DATE_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_dm
+				where DATE_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="dateType  == 'month'">
+				MONTH_ID as DATE_ID
+				from rpt_ydjc_topvip_upgrade_mm
+				where MONTH_ID between #{preDateId,jdbcType=INTEGER} and #{dateId,jdbcType=INTEGER}
+			</if>
+			<if test="ids!=null and ids!=''">
+				and IDS=#{ids,jdbcType=INTEGER}
+			</if>
+			<if test="provinceCode!=null and provinceCode!=''">
+				and PROVINCE_CODE=#{provinceCode,jdbcType=INTEGER}
+			</if> 
+		order by DATE_ID desc
+	</select>
+</mapper>
