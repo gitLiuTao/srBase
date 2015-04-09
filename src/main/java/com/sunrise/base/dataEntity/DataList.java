@@ -17,9 +17,11 @@ public class DataList extends ArrayList<Map<String,Object>> implements IDataList
 	private static final long serialVersionUID = 6155710843582006086L;
 
 	public DataList() {
-		System.out.println("分支1提交内容");
-		System.out.println("分支2提交内容");
-		System.out.println("master提交内容");
+//		System.out.println("分支1提交内容");
+//		System.out.println("分支2提交内容");
+//		System.out.println("master提交内容");
+		
+		System.out.println("=========release测试提交内容==========");
 	}
 
 	public DataList(List<Map<String, Object>> param){
