@@ -23,6 +23,9 @@ public class Data extends HashMap<String, Object> implements IData {
 	public Data(){
 		System.out.println("master添加内容*******************");
 		System.out.println("develop添加内容*******************");
+//		System.out.println("master添加内容*******************");
+		System.out.println("分支1添加内容*******************");
+
 	}
 	public Data(Map<String,Object> map){
 		this.putAll(map);
