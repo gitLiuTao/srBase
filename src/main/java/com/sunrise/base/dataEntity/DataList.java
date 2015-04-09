@@ -19,6 +19,7 @@ public class DataList extends ArrayList<Map<String,Object>> implements IDataList
 	public DataList() {
 		System.out.println("============开发提交内容========");
 		System.out.println("=========release测试提交内容==========");
+		System.out.println("***************");
 	}
 
 	public DataList(List<Map<String, Object>> param){
